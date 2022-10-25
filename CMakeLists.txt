@@ -51,4 +51,4 @@ add_executable(puzzle-app ${SOURCES})
 target_link_libraries(puzzle-app sfml-system sfml-window sfml-graphics )
 
 # install resources
-#add_subdirectory(resources)
+add_subdirectory(resources)
