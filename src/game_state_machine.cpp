@@ -1,6 +1,6 @@
-#include "game_state_machine.h"
-#include "game_state.h"
-#include "puzzle.h"
+#include "../include/game_state_machine.h"
+#include "../include/game_state.h"
+#include "../include/puzzle.h"
 
 //----------------------------------------------------------------------
 

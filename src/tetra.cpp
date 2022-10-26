@@ -1,6 +1,6 @@
-#include "tetra.h"
-#include "cell.h"
-#include "action.h"
+#include "../include/tetra.h"
+#include "../include/cell.h"
+#include "../include/action.h"
 
 //======================================================================
 

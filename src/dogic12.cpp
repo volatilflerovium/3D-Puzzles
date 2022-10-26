@@ -1,5 +1,5 @@
-#include "dogic12.h"
-#include "tetra.h"
+#include "../include/dogic12.h"
+#include "../include/tetra.h"
 
 //----------------------------------------------------------------------
 

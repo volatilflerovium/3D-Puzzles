@@ -1,6 +1,6 @@
 #include <cmath>
-#include "camera.h"
-#include "shape.h"
+#include "../include/camera.h"
+#include "../include/shape.h"
 
 //----------------------------------------------------------------------
 

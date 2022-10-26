@@ -1,5 +1,5 @@
-#include "state_machine.h"
-#include "modulo.h"
+#include "../include/state_machine.h"
+#include "../include/modulo.h"
 
 //======================================================================
 

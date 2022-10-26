@@ -1,5 +1,5 @@
-#include "rubik.h"
-#include "cube.h"
+#include "../include/rubik.h"
+#include "../include/cube.h"
 
 //======================================================================
 

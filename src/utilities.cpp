@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "utilities.h"
+#include "../include/utilities.h"
 
 //----------------------------------------------------------------------
 

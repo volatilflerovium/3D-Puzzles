@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "base.h"
+#include "../include/base.h"
 
 //----------------------------------------------------------------------
 

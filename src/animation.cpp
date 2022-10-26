@@ -4,16 +4,16 @@
 
 #include <cassert>
 
-#include "constants.h"
-#include "base.h"
-#include "framerate.h"
-#include "rspace.h"
-#include "camera.h"
-#include "state_machine.h"
-#include "game_state.h"
-#include "game_state_machine.h"
-#include "reference_frame.h"
-#include "utilities.h"
+#include "../include/constants.h"
+#include "../include/base.h"
+#include "../include/framerate.h"
+#include "../include/rspace.h"
+#include "../include/camera.h"
+#include "../include/state_machine.h"
+#include "../include/game_state.h"
+#include "../include/game_state_machine.h"
+#include "../include/reference_frame.h"
+#include "../include/utilities.h"
 
 //######################################################################
 

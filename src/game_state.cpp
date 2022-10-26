@@ -1,10 +1,10 @@
 #include <filesystem>
-#include "utilities.h"
-#include "game_state.h"
-#include "puzzle.h"
-#include "rubik.h"
-#include "dogic.h"
-#include "dogic12.h"
+#include "../include/utilities.h"
+#include "../include/game_state.h"
+#include "../include/puzzle.h"
+#include "../include/rubik.h"
+#include "../include/dogic.h"
+#include "../include/dogic12.h"
 
 //----------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
-#include "cube.h"
-#include "action.h"
+#include "../include/cube.h"
+#include "../include/action.h"
 
 //----------------------------------------------------------------------
 

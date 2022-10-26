@@ -25,23 +25,23 @@ if(release)
 endif()
 
 set(SOURCES
-	animation.cpp
-	base.cpp
+	src/animation.cpp
+	src/base.cpp
 #	reference_frame.cpp
-	camera.cpp
-	shape.cpp
-	cube.cpp
-	tetra.cpp
-	rubik.cpp
-	dogic.cpp
-	dogic12.cpp
-	modulo.cpp
-	state_machine.cpp
-	game_state.cpp
-	game_state_machine.cpp
-	button.cpp
-	utilities.cpp
-	user_input.cpp
+	src/camera.cpp
+	src/shape.cpp
+	src/cube.cpp
+	src/tetra.cpp
+	src/rubik.cpp
+	src/dogic.cpp
+	src/dogic12.cpp
+	src/modulo.cpp
+	src/state_machine.cpp
+	src/game_state.cpp
+	src/game_state_machine.cpp
+	src/button.cpp
+	src/utilities.cpp
+	src/user_input.cpp
 )
 
 #MESSAGE("SFML +lib : ${SFML_LIBRARIES}") 
