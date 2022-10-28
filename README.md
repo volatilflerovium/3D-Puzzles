@@ -2,6 +2,8 @@
 
 3D-Puzzles is a simulator of the clasic Rubik cube and Dogic and Dogic12.
 
+![](http://103.102.44.126/img/3D-puzzles.png)
+
 # How to install it
 
 Download the AppImage [3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/raw/main/3D-Puzzles-x86_64.AppImage) for Linux
