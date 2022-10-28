@@ -26,9 +26,8 @@ static const char* DOGIC_FILE{".dogic_session"};
 static const char* DOGIC12_FILE{".dogic12_session"};
 static const char* RUBIK_FILE{".rubik_session"};
 
-char const FontLSR[]="/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf";
-
-char const FontLMR[]="/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf";
+char const FontLSR[]="LiberationSerif-Regular.ttf";
+char const FontLMR[]="LiberationMono-Regular.ttf";
 
 //----------------------------------------------------------------------
 

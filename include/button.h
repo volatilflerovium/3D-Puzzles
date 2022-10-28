@@ -164,12 +164,23 @@ sf::Text LabelMaker(const char* text, unsigned int characterSize=30)
 	static bool isSet=false;
 	static sf::Font font;
 	if(!isSet){
-		isSet=font.loadFromFile(fontFile);
+		std::string fontPath;
+		fontPath.reserve(100);
 		if(!isSet){
-			isSet=font.loadFromFile(fontFile+1);
-		}
-		if(!isSet){
-			throw "Font file not found.";
+			fontPath.append("/usr/share/fonts/truetype/liberation/");
+			fontPath.append(fontFile);
+			isSet=font.loadFromFile(fontPath);
+		}		
+
+		if(!isSet){	
+			char* envVar=getenv("APPDIR");
+			if(envVar){
+				fontPath=std::string(envVar);
+				fontPath.append("/usr/share/fonts/truetype/liberation/");
+				fontPath.append(fontFile);
+				isSet=font.loadFromFile(fontPath);
+				std::cout<<"here!\n";
+			}		
 		}
 	}
 

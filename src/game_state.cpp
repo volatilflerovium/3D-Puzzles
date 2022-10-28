@@ -1,4 +1,10 @@
 #include <filesystem>
+
+#include <string>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 #include "../include/utilities.h"
 #include "../include/game_state.h"
 #include "../include/puzzle.h"
@@ -71,11 +77,21 @@ Initial::Initial()
 	sf::Rect<float> txtSize=m_label.getGlobalBounds();
 	m_label.setPosition(Normalization::absolute(WINDOW_WIDTH-m_label.getGlobalBounds().width-20, 44));	
 
-	//std::cout<<std::filesystem::current_path()<<"\n";
-	m_texture.loadFromFile("resources/puzzleCover.png", sf::IntRect(0, 0, 843, 938));
+	std::string coverFile("");
+	char* envVar=getenv("APPDIR");
+	if(envVar){
+		coverFile.append(envVar);
+		coverFile.append("/usr/share/icons/hicolor/843x938/apps/puzzleCover.png");
+	}
+	else{
+		coverFile.append("resources/puzzleCover.png");
+	}
+
+	m_texture.loadFromFile(coverFile, sf::IntRect(0, 0, 843, 938));
+
 	m_sprite.setTexture(m_texture);
 	m_sprite.setScale(sf::Vector2f(0.75f, 0.75f));
-	m_sprite.setPosition(sf::Vector2f(300.f, 50.f)); // absolute position
+	m_sprite.setPosition(sf::Vector2f(300.f, 50.f)); //*/
 }
 
 //----------------------------------------------------------------------
