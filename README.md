@@ -30,7 +30,7 @@ and then on the Permissions tab, check the box next to Allow executing file as p
 
 # Disclaimer
 
-There was NOT intention at all of producing killer graphics, why? because
+There was NOT intention at all of producing killer graphics, after all 
 [SFML does not support 3D](https://www.sfml-dev.org/faq.php#grl-3d)
 
 # License
