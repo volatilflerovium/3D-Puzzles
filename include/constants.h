@@ -22,9 +22,9 @@ const double DELTA_ANGLE=5.0;
 const double phi=0.5*(1+std::sqrt(5));
 const double scale=1.7;
 
-static const char* DOGIC_FILE{".dogic_session"};
-static const char* DOGIC12_FILE{".dogic12_session"};
-static const char* RUBIK_FILE{".rubik_session"};
+char const DOGIC_FILE[]=".dogic_session";
+char const DOGIC12_FILE[]=".dogic12_session";
+char const RUBIK_FILE[]=".rubik_session";
 
 char const FontLSR[]="LiberationSerif-Regular.ttf";
 char const FontLMR[]="LiberationMono-Regular.ttf";

@@ -27,7 +27,7 @@ int main()
 	sf::ContextSettings settings;
 	settings.antialiasingLevel=8;
 
-	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Rubik Cube", sf::Style::Close, settings);
+	sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "3D Puzzles", sf::Style::Close, settings);
 
 	window.setFramerateLimit(48);
 

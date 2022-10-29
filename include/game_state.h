@@ -14,6 +14,10 @@
 #include <map>
 #include <vector>
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 #include "constants.h"
 #include "button.h"
 #include "puzzle_interface.h"
@@ -162,6 +166,7 @@ class Play : public GameState
 		virtual void scramble();
 		virtual void setHanders();
 		virtual void dumpData();
+		virtual void mkFile(const char* fileName);
 
 		std::vector<Instruction> m_instructions;
 		PuzzleI* m_puzzle;
@@ -169,7 +174,7 @@ class Play : public GameState
 		int m_iterations;
 		bool m_ready;
 		bool m_loadSession{false};
-		const char* m_fileName{""};
+		char m_fileName[100];
 };
 
 //----------------------------------------------------------------------
@@ -189,6 +194,24 @@ inline void Play::clearFile()
 	gameSession.close();	
 }
 
+//----------------------------------------------------------------------
+
+inline void Play::mkFile(const char* fileName)
+{
+	memset(m_fileName, 0, 100*sizeof(char));
+	int len=0;
+	if(getenv("HOME")){
+		char* homeDir=getenv("HOME");
+		len=strlen(homeDir);
+		if(len<80){
+			memcpy(m_fileName, homeDir, len*sizeof(char));
+			m_fileName[len]='/';
+			len++;
+		}
+	}
+	memcpy(m_fileName+len, fileName, strlen(fileName)*sizeof(char));
+	//std::cout<<m_fileName<<"\n";
+}
 //======================================================================
 //######################################################################
 //======================================================================
@@ -230,7 +253,7 @@ class PlayDogic : public Type2Puzzle<Dogic>
 		PlayDogic()
 		{
 			m_iterations=30+rand()%30;
-			m_fileName=DOGIC_FILE;
+			mkFile(DOGIC_FILE);
 		};
 
 		virtual ~PlayDogic()
@@ -247,7 +270,7 @@ class PlayDogic12 : public Type2Puzzle<Dogic12>
 		PlayDogic12()
 		{
 			m_iterations=30+rand()%20;
-			m_fileName=DOGIC12_FILE;
+			mkFile(DOGIC12_FILE);
 		};
 
 		virtual ~PlayDogic12()
@@ -264,7 +287,7 @@ class PlayRubik : public Type2Puzzle<Rubik>
 		PlayRubik()
 		{
 			m_iterations=21+rand()%15;
-			m_fileName=RUBIK_FILE;
+			mkFile(RUBIK_FILE);
 		};
 
 		virtual ~PlayRubik()
