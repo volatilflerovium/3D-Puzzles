@@ -188,32 +188,23 @@ void ModuloT::paint(){
 //----------------------------------------------------------------------
 
 ModuloT12::ModuloT12(const Vect<3>& axe, double ang)//, unsigned int cells1, unsigned int cells2)
-:ModuloI(axe, ang, 72.0, 1),
+:ModuloI(axe, ang, 72.0, 20),
 m_cellsInModulo1(5),
 m_cellsInModulo2(15),
 m_full(false)
-{
-	m_cells1=new Cell*[5];
-	m_cells2=new Cell*[15];
-	for(unsigned int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]=nullptr;
-	}
-	for(unsigned int i=0; i<m_cellsInModulo2; i++){
-		m_cells2[i]=nullptr;
-	}
-}
+{}
 
 //----------------------------------------------------------------------
 
 void ModuloT12::disconnectCells()
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->isolate(this);
+		m_cells[i]->isolate(this);
 	}
 
 	if(m_full){		
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->isolate(this);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->isolate(this);
 		}
 	}
 }
@@ -223,15 +214,15 @@ void ModuloT12::disconnectCells()
 void ModuloT12::disconnect(Cell* cell)
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		if(m_cells1[i]==cell){
-			m_cells1[i]=nullptr;
+		if(m_cells[i]==cell){
+			m_cells[i]=nullptr;
 			break;
 		}
 	}
 
-	for(int i=0; i<m_cellsInModulo2; i++){
-		if(m_cells2[i]==cell){
-			m_cells2[i]=nullptr;
+	for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+		if(m_cells[i]==cell){
+			m_cells[i]=nullptr;
 			break;
 		}
 	}
@@ -242,12 +233,12 @@ void ModuloT12::disconnect(Cell* cell)
 void ModuloT12::reconnectCells(int direction)
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->executeAction(m_action, direction);
+		m_cells[i]->executeAction(m_action, direction);
 	}
 
 	if(m_full){
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->executeAction(m_action, direction);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->executeAction(m_action, direction);
 		}
 	}
 }
@@ -257,12 +248,12 @@ void ModuloT12::reconnectCells(int direction)
 void ModuloT12::clockRotation()
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->rotate(m_rotation);
+		m_cells[i]->rotate(m_rotation);
 	}
 
 	if(m_full){
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->rotate(m_rotation);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->rotate(m_rotation);
 		}
 	}
 }
@@ -272,12 +263,12 @@ void ModuloT12::clockRotation()
 void ModuloT12::antiClockRotation()
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->revRotate(m_rotation);
+		m_cells[i]->revRotate(m_rotation);
 	}
 
 	if(m_full){
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->revRotate(m_rotation);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->revRotate(m_rotation);
 		}
 	}
 }
@@ -287,12 +278,12 @@ void ModuloT12::antiClockRotation()
 void ModuloT12::fastClockRotation()
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->rotate(m_fastRotation);
+		m_cells[i]->rotate(m_fastRotation);
 	}
 
 	if(m_full){
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->rotate(m_fastRotation);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->rotate(m_fastRotation);
 		}
 	}
 }
@@ -302,12 +293,12 @@ void ModuloT12::fastClockRotation()
 void ModuloT12::fastAntiClockRotation()
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		m_cells1[i]->revRotate(m_fastRotation);
+		m_cells[i]->revRotate(m_fastRotation);
 	}
 
 	if(m_full){
-		for(int i=0; i<m_cellsInModulo2; i++){
-			m_cells2[i]->revRotate(m_fastRotation);
+		for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+			m_cells[i]->revRotate(m_fastRotation);
 		}
 	}
 }
@@ -318,19 +309,19 @@ void ModuloT12::reconnectCell(Cell* cell, int metaData)
 {
 	if(metaData==1){
 		for(int i=0; i<m_cellsInModulo1; i++){
-			if(m_cells1[i]==nullptr){
-				m_cells1[i]=cell;
-				m_cells1[i]->setPin(this);
+			if(m_cells[i]==nullptr){
+				m_cells[i]=cell;
+				m_cells[i]->setPin(this);
 				return;
 			}
 		}
 		return;
 	}
 
-	for(int i=0; i<m_cellsInModulo2; i++){
-		if(m_cells2[i]==nullptr){
-			m_cells2[i]=cell;
-			m_cells2[i]->setPin(this);
+	for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+		if(m_cells[i]==nullptr){
+			m_cells[i]=cell;
+			m_cells[i]->setPin(this);
 			return;
 		}
 	}
@@ -341,10 +332,10 @@ void ModuloT12::reconnectCell(Cell* cell, int metaData)
 void ModuloT12::registerUpperCells(Cell* cell)//5
 {
 	for(int i=0; i<m_cellsInModulo1; i++){
-		if(m_cells1[i]==nullptr){
-			m_cells1[i]=cell;
-			m_cells1[i]->setPin(this);
-			m_cells1[i]->setMetadata(this, 1);
+		if(m_cells[i]==nullptr){
+			m_cells[i]=cell;
+			m_cells[i]->setPin(this);
+			m_cells[i]->setMetadata(this, 1);
 			break;
 		}
 	}
@@ -354,10 +345,10 @@ void ModuloT12::registerUpperCells(Cell* cell)//5
 
 void ModuloT12::registerLowerCells(Cell* cell)//15
 {
-	for(int i=0; i<m_cellsInModulo2; i++){
-		if(m_cells2[i]==nullptr){
-			m_cells2[i]=cell;
-			m_cells2[i]->setPin(this);
+	for(int i=m_cellsInModulo1; i<m_cellsInModulo1+m_cellsInModulo2; i++){
+		if(m_cells[i]==nullptr){
+			m_cells[i]=cell;
+			m_cells[i]->setPin(this);
 			break;
 		}
 	}

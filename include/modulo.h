@@ -189,8 +189,6 @@ class ModuloT12 : public ModuloI
 		void setFull(bool isFull);
 
 	protected:
-		Cell** m_cells1;
-		Cell** m_cells2;
 		const int m_cellsInModulo1;
 		const int m_cellsInModulo2;
 		bool m_full;		
