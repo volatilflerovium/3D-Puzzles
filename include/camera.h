@@ -1,8 +1,8 @@
 /*********************************************************************
 * Camera class                               								*
 *         	                                                         *
-* Version: 1.5                                                       *
-* Date:    16-09-2022                                                *
+* Version: 1.7                                                       *
+* Date:    26-12-2022                                                *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef CAMERA_H
@@ -15,6 +15,7 @@
 #include "reference_frame.h"
 #include "vector.h"
 #include "rspace.h"
+#include "utilities.h"
 
 //----------------------------------------------------------------------
 
@@ -27,11 +28,15 @@ class Camera : public ReferenceFrame
 
 		Camera& setApperture(double aperture);
 		Camera& setFocus(double focus);
+		~Camera();
 
-		void updateAngle(int i, double ang);
+		sf::Vector2f VectSFVect(const Vect<3>& V) const; //Vect<3> to sf::Vertex
 
-		sf::Vector2f VectSFVect(const Vect<3>& V) const;
-		void lRuD(int k);
+		void lRuD();
+		virtual void yawControl(int yawDirection);
+		virtual void rollControl(int rollDirection);
+		virtual void pitchControl(int pitchDirection);
+
 		bool inRangeView(const Vect<3>& V);
 		void updateVertex(sf::Vertex& V, const Vect<3>& W) const;
 		void updateVertex(sf::Vector2f& V, const Vect<3>& W) const;
@@ -39,21 +44,30 @@ class Camera : public ReferenceFrame
 		double quasiDistanceToCamera(const Vect<3>& V) const;// V is in world coordinates
 
 		void setWindow(sf::RenderWindow* window);
-
+		void eventHandler(const sf::Event& event);
+		void updateView();
+	
 		static Camera* m_Cameras[2];
 
 	private:
 		std::shared_ptr<RSpace<3>> m_RS;
-		Vect<3> m_Axz;
-		Vect<3> m_Ax;
-		Rotation<3> m_cameraAngles[2];
+		Rotation<3> m_yawRotation;
+		Vect<3> m_pitchAxis;//y
+		Vect<3> m_rollAxis;//x
+		Vect<3> m_yawAxis;//z
+
 		double m_app;
 		double m_fD;
 		double m_proportion;
 		double m_threshold;
-		double m_yAxeAngle;
-		double m_xAxeAngle;
+
+		double m_pitchAngle;
+		double m_rollAngle;
+		double m_yawAngle;
+
+		int m_direction;
 		bool m_hasChanged;
+		bool m_ready;
 
 		struct DIRECTION
 		{
@@ -62,12 +76,16 @@ class Camera : public ReferenceFrame
 				LEFT=0,
 				RIGHT,
 				UP,
-				DOWN
+				DOWN,
+				CLOCKWISE,
+				ANTICLOCKWISE
 			};
 		};
 
 		double ppWx(double d) const;
 		double ppWy(double d) const;
+
+		double normalizeAngle(double angle);		
 };
 
 //----------------------------------------------------------------------
@@ -82,6 +100,11 @@ Camera(RS, fD, aperture, topCornerX, topCornerY, width, height, width*0.5, heigh
 inline Camera::Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double originX, double originY, double size)
 :
 Camera(RS, fD, aperture, 0.0, 0.0, D_WINDOW_WIDTH, D_WINDOW_HEIGHT, originX, originY, size)
+{}
+
+//----------------------------------------------------------------------
+
+inline Camera::~Camera()
 {}
 
 //----------------------------------------------------------------------
@@ -142,13 +165,6 @@ inline void Camera::setWindow(sf::RenderWindow* window)
 
 //----------------------------------------------------------------------
 
-inline void Camera::updateAngle(int i, double ang)
-{
-	m_RS->updateTransformations(i, ang);
-}
-
-//----------------------------------------------------------------------
-
 inline double Camera::ppWx(double d) const 
 {
 	return d*m_proportion;
@@ -183,5 +199,30 @@ inline double Camera::quasiDistanceToCamera(const Vect<3>& V) const
 }
 
 //----------------------------------------------------------------------
+
+inline double Camera::normalizeAngle(double angle)
+{
+	if(angle>=360.0){
+		angle-=360.0;
+	}
+	else if(angle<=-360.0){
+		angle+=360.0;
+	}
+
+	return angle;
+}
+
+
+//----------------------------------------------------------------------
+
+inline void Camera::updateView()
+{
+	if(m_ready){
+		lRuD();
+	}
+}
+
+//----------------------------------------------------------------------
+
 
 #endif

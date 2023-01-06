@@ -27,6 +27,7 @@ class RSpace
 		void updateTransformations(int i, double ang);
 		void updateTransformation(int i, const Vect<3>& axe, double angle);
 		void move(const Vect<D>& V);// set relPosition+=V
+		void setRelPosition(const Vect<D>& V);
 
 	private:
 		Vect<D> m_relPosition; // the position of the origin of the space relatively to the reference space (parent)
@@ -163,6 +164,14 @@ template<int D>
 inline void RSpace<D>::move(const Vect<D>& V)
 {
 	m_relPosition+=V;
+}
+
+//-------------------------------------------------------------------
+
+template<int D>
+inline void RSpace<D>::setRelPosition(const Vect<D>& V)
+{
+	m_relPosition=V;
 }
 
 //-------------------------------------------------------------------

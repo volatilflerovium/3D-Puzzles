@@ -243,7 +243,6 @@ void Play::render()
 void Play::eventHandler(const sf::Event& event)
 {
 	if(event.key.code>70 && event.key.code<75){
-		GameStateMachine::m_CameraView.lRuD(event.key.code-71);
 		m_handlers->updateView();
 	}
 	else{

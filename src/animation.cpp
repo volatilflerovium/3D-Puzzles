@@ -46,6 +46,7 @@ int main()
 				window.close();
 			}
 			else{
+				GameStateMachine::m_CameraView.eventHandler(event);
 				stateMachine->eventHandler(event);
 			}
 		}
@@ -57,7 +58,7 @@ int main()
 
 			//################################################################
 			//draw things here ###############################################
-
+			GameStateMachine::m_CameraView.updateView();
 			stateMachine->executeState();
 			
 			stateMachine->render();
