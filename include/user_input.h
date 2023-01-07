@@ -10,7 +10,7 @@
 #define USER_INPUT_H
 
 #include <functional>
-#include <vector>
+#include <queue>
 #include <fstream>
 
 #include "handler.h"
@@ -71,18 +71,18 @@ class CommandQueue
 		void push(Command2 command);
 		Command2 pop();
 		bool isEmpty() const;
-		int size();
+		int size() const;
 
 	private:
-		std::vector<Command2> m_queue;
-		std::size_t m_index{0};		
+		std::queue<Command2> m_queue;
+		bool m_removeFront{false};	
 };
 
 //----------------------------------------------------------------------
 
 inline CommandQueue::CommandQueue()
 {
-	m_queue.reserve(60);			
+	//m_queue.reserve(60);			
 }
 
 //----------------------------------------------------------------------
@@ -94,31 +94,34 @@ inline CommandQueue::~CommandQueue()
 
 inline void CommandQueue::push(Command2 command)
 {
-	m_queue.push_back(command);
+	m_queue.push(command);
 }
 
 //----------------------------------------------------------------------
 
 inline Command2 CommandQueue::pop()
 {
-	if(!(m_index<m_queue.size())){
-		throw("error!");
+	if(m_removeFront){
+		m_queue.pop();
 	}
-	return m_queue[m_index++];
+
+	m_removeFront=true;
+
+	return m_queue.front();
 }
 
 //----------------------------------------------------------------------
 
 inline bool CommandQueue::isEmpty() const
 {
-	return !(m_index<m_queue.size());
+	return this->size()<1;
 }
 
 //----------------------------------------------------------------------
 
-inline int CommandQueue::size()
+inline int CommandQueue::size() const
 {
-	return m_queue.size();
+	return m_queue.size()-static_cast<int>(m_removeFront);
 }
 
 //======================================================================
