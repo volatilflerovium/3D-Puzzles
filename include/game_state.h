@@ -4,37 +4,33 @@
 * PlayRubik class                              								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef GAME_STATE_H
 #define GAME_STATE_H
-
-#include <SFML/Graphics.hpp>
-#include <map>
-#include <vector>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-
-#include "constants.h"
+#include "assertion.h"
 #include "button.h"
-#include "puzzle_interface.h"
-#include "rubik.h"
+#include "constants.h"
 #include "dogic.h"
 #include "dogic12.h"
-#include "user_input.h"
-#include "assertion.h"
 #include "game_state_machine.h"
+#include "puzzle_interface.h"
+#include "rubik.h"
+#include "user_input.h"
+
+#include <map>
+#include <vector>
+#include <fstream>
+
+#include <pwd.h>
 
 //----------------------------------------------------------------------
 
 class GameState
 {
 	public:
-		virtual ~GameState()
-		{};
+		virtual ~GameState()=default;
 
 		virtual void enter()=0;
 		virtual void execute()=0;
@@ -52,7 +48,8 @@ class Initial0 : public GameState
 {
 	public:
 		Initial0();
-		~Initial0();
+		virtual ~Initial0();
+
 		virtual void enter();
 		virtual void execute(){};
 		virtual void eventHandler(const sf::Event& event);
@@ -71,8 +68,7 @@ class Initial0 : public GameState
 //----------------------------------------------------------------------
 
 inline Initial0::Initial0()
-:
-m_posX(40)
+:m_posX(40)
 {}
 
 //----------------------------------------------------------------------
@@ -90,8 +86,7 @@ class Initial : public Initial0
 {
 	public:
 		Initial();
-		virtual ~Initial()
-		{};
+		virtual ~Initial()=default;
 
 		virtual void render();
 
@@ -158,7 +153,7 @@ class Play : public GameState
 		virtual void exit();
 		virtual void render();
 
-		void loadLastSession();
+		void loadLastSession(bool lastSession);
 		void clearFile();
 
 	protected:
@@ -166,22 +161,22 @@ class Play : public GameState
 		virtual void scramble();
 		virtual void setHanders();
 		virtual void dumpData();
-		virtual void mkFile(const char* fileName);
+		void mkFile(const char* fileName);
 
 		std::vector<Instruction> m_instructions;
 		PuzzleI* m_puzzle;
-		UII* m_handlers;// one for each camera
+		UII* m_uiiHandlers;// one for each camera
 		int m_iterations;
 		bool m_ready;
 		bool m_loadSession{false};
-		char m_fileName[100];
+		std::string m_fileName;
 };
 
 //----------------------------------------------------------------------
 
-inline void Play::loadLastSession()
+inline void Play::loadLastSession(bool lastSession)
 {
-	m_loadSession=true;
+	m_loadSession=lastSession;
 }
 
 //----------------------------------------------------------------------
@@ -198,23 +193,18 @@ inline void Play::clearFile()
 
 inline void Play::mkFile(const char* fileName)
 {
-	memset(m_fileName, 0, 100*sizeof(char));
-	int len=0;
 	if(getenv("HOME")){
-		char* homeDir=getenv("HOME");
-		len=strlen(homeDir);
-		if(len<80){
-			memcpy(m_fileName, homeDir, len*sizeof(char));
-			m_fileName[len]='/';
-			len++;
-		}
+		m_fileName=getenv("HOME");
+		m_fileName.append("/");
 	}
-	memcpy(m_fileName+len, fileName, strlen(fileName)*sizeof(char));
+	else{
+		m_fileName="/tmp/";
+	}
+	m_fileName.append(fileName);
 }
 
-//======================================================================
-//######################################################################
-//======================================================================
+//====================================================================
+//====================================================================
 
 template<typename T, bool = std::is_base_of<PuzzleI, T>::value>
 class Type2Puzzle
@@ -225,22 +215,21 @@ class Type2Puzzle<Type, true> : public Play
 {
 	public:
 		Type2Puzzle(){}
-		virtual ~Type2Puzzle(){}
+		virtual ~Type2Puzzle()=default;
 
-		virtual void enter();
-	
+		virtual void enter();	
 };
 
 template<typename Type>
 void Type2Puzzle<Type, true>::enter()
 {
 	setHanders();
-	m_puzzle=new Type(GameStateMachine::Global, m_handlers->m_corners);
+	m_puzzle=new Type(GameStateMachine::Global, m_uiiHandlers->getCorners());
 	if(!(m_loadSession && loadFile())){
 		clearFile();
 		scramble();
-	}			
-	m_handlers->updateView();
+	}
+	m_uiiHandlers->updateView();
 }	
 
 //======================================================================
@@ -256,8 +245,7 @@ class PlayDogic : public Type2Puzzle<Dogic>
 			mkFile(DOGIC_FILE);
 		};
 
-		virtual ~PlayDogic()
-		{};
+		virtual ~PlayDogic()=default;
 };
 
 //======================================================================
@@ -273,8 +261,7 @@ class PlayDogic12 : public Type2Puzzle<Dogic12>
 			mkFile(DOGIC12_FILE);
 		};
 
-		virtual ~PlayDogic12()
-		{};
+		virtual ~PlayDogic12()=default;
 };
 
 //======================================================================
@@ -290,8 +277,7 @@ class PlayRubik : public Type2Puzzle<Rubik>
 			mkFile(RUBIK_FILE);
 		};
 
-		virtual ~PlayRubik()
-		{};
+		virtual ~PlayRubik()=default;
 		
 	protected:
 		virtual void setHanders();

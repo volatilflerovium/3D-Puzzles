@@ -2,15 +2,13 @@
 * Dogic12 class                               								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef DOGIC12_H
 #define DOGIC12_H
 
 #include "puzzle.h"
-
-class Vect<3>;
 
 //----------------------------------------------------------------------
 
@@ -25,16 +23,15 @@ struct Dogic12Settings : public PuzzleSettings
 class Dogic12 : public Puzzle<Dogic12Settings>
 {
 	public:
-		Dogic12(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices);
-		virtual ~Dogic12()
-		{};
+		Dogic12(std::shared_ptr<RSpace<3>> RS, const Vect<3>* vertices);
+		virtual ~Dogic12()=default;
 
 	protected:
 		Vect<3> mk1(const Vect<3>& vertex1, const Vect<3>& vertex2);
 		void mkFace(const Vect<3>& vertex1, const Vect<3>& vertex2, const Vect<3>& vertex3);
 
 		template<typename Func>
-		void looping(Vect<3>* vertices, Func cbk);
+		void looping(const Vect<3>* vertices, Func cbk);
 
 		struct Parts
 		{
@@ -60,7 +57,7 @@ inline Vect<3> Dogic12::mk1(const Vect<3>& vertex1, const Vect<3>& vertex2)
 //----------------------------------------------------------------------
 
 template<typename Func>
-void Dogic12::looping(Vect<3>* vertices, Func cbk)
+void Dogic12::looping(const Vect<3>* vertices, Func cbk)
 {
 	std::vector<double> distances(80, 1e6);
 	std::vector<int> cellIdxs(80, 0);

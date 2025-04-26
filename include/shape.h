@@ -2,35 +2,25 @@
 * Shape class                                 								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef SHAPE_H
 #define SHAPE_H
-
-#include <SFML/Graphics.hpp>
-#include <memory>
-
-#include "base.h"
-#include "vector.h"
-#include "rspace.h"
 #include "camera.h"
+#include "vector.h"
 
 //----------------------------------------------------------------------
 
 class Shape
 {
 	public:
-		static void setCamera(Camera* cm);
-
 		Shape(std::shared_ptr<RSpace<3>> _RS)
-		:
-		m_centroid({0, 0, 0}),
-		m_RS(_RS)
+		: m_centroid({0, 0, 0})
+		, m_RS(_RS)
 		{}
 
-		virtual ~Shape()
-		{};
+		virtual ~Shape()=default;
 
 		virtual void draw()=0;
 		virtual void updateEdges()=0;
@@ -45,8 +35,6 @@ class Shape
 		void setDisplay(bool view);
 
 	protected:
-		static Camera* m_Cm;
-
 		Vect<3> m_centroid;
 		std::shared_ptr<RSpace<3>> m_RS;
 
@@ -58,13 +46,6 @@ class Shape
 
 		void updateDisplay();
 };
-
-//----------------------------------------------------------------------
-
-inline void Shape::setCamera(Camera* cm)
-{
-	m_Cm=cm;
-}
 
 //----------------------------------------------------------------------
 
@@ -84,7 +65,7 @@ inline void Shape::setDisplay(bool display)
 
 inline void Shape::updateDisplay()
 {
-	m_display=m_Cm->inRangeView(m_centroid);
+	m_display=CameraManager::inRangeView(m_centroid);
 }
 
 //----------------------------------------------------------------------

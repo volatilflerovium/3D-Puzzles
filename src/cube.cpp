@@ -1,5 +1,5 @@
-#include "../include/cube.h"
-#include "../include/action.h"
+#include "cube.h"
+#include "action.h"
 
 //----------------------------------------------------------------------
 
@@ -26,7 +26,10 @@ Cube::Cube(std::shared_ptr<RSpace<3>> _RS, const Vect<3>& position, int id)
 
 	for(int i=0; i<6; i++){
 		m_faces[i].setPointCount(4);
-		m_faces[i].setFillColor(sf::Color(0, 0, 0));
+		m_faces[i].setFillColor(sf::Color(0, 0, 0));//sf::Color::Transparent);
+
+		// set a 10-pixel wide orange outline
+		//m_faces[i].setOutlineThickness(2.f);
 		m_faces[i].setOutlineColor(sf::Color(0, 0, 0));
 	}
 
@@ -40,12 +43,12 @@ void Cube::updateEdges()
 {
 	if(m_hasChanged || true)
 	{
-		int j=0, r=0;
+		int j=0;
 		
 		for(int i=0; i<8; i++){
 			j=4*(i/4)+(i+1)%4;
-			m_Cm->updateVertex(m_Edges[i][0], m_RS->local2World(m_Vertex[i]));
-			m_Cm->updateVertex(m_Edges[i][1], m_RS->local2World(m_Vertex[j]));
+			CameraManager::updateVertex(m_Edges[i][0], m_RS->local2World(m_Vertex[i]));
+			CameraManager::updateVertex(m_Edges[i][1], m_RS->local2World(m_Vertex[j]));
 		}
 
 		for(int i=8; i<m_numEdges; i++){
@@ -55,7 +58,7 @@ void Cube::updateEdges()
 		}
 
 		for(int i=0; i<CubeSettings::VERTEX_NUM; i++){
-			m_Cm->updateVertex(m_verteces[i], m_RS->local2World(m_Vertex[i]));
+			CameraManager::updateVertex(m_verteces[i], m_RS->local2World(m_Vertex[i]));
 		}
 
 		for(int i=0; i<CubeSettings::FACE_NUM; i++){		

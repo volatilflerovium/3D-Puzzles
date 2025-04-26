@@ -2,12 +2,11 @@
 * FrameRate class                              								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef FRAMERATE_H
 #define FRAMERATE_H
-#include <SFML/Graphics.hpp>
 #include <SFML/System/Time.hpp>
 
 class FrameRate
@@ -51,6 +50,7 @@ inline double FrameRate::reset()
 {
    return clock.restart().asSeconds();
 }
+
 
 //-------------------------------------------------------------------
 

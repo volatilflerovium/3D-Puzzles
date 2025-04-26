@@ -2,18 +2,13 @@
 * State, Rotating, FastRotating, Idel class    								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
-
-#include <iostream>
-
 #include "utilities.h"
 
-//======================================================================
-//######################################################################
 //======================================================================
 
 class ModuloI;
@@ -27,7 +22,8 @@ class State
 		:m_currentModulo(nullptr)
 		{};
 
-		virtual ~State(){};
+		virtual ~State()=default;
+
 		virtual void enter(ModuloI* module, const Instruction& instruction)=0;
 		virtual Signal execute()=0;
 		virtual void exit()=0;
@@ -88,5 +84,6 @@ class Idel : public State
 };
 
 //----------------------------------------------------------------------
+
 
 #endif

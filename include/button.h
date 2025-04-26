@@ -4,20 +4,19 @@
 * MouseEvent class                             								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef BUTTON_H
 #define BUTTON_H
-
-#include <functional>
-#include <SFML/Graphics.hpp>
-
 #include "base.h"
-#include "reference_frame.h"
 #include "line.h"
 
-typedef	std::function<void()> Command;
+#include <functional>
+
+//====================================================================
+
+typedef std::function<void()> Command;
 
 template<int T>
 struct MouseBotton
@@ -25,9 +24,8 @@ struct MouseBotton
 	enum data{val=T};
 };
 
-//======================================================================
-//######################################################################
-//======================================================================
+//====================================================================
+//====================================================================
 
 template<int N>
 class Clickable
@@ -35,14 +33,13 @@ class Clickable
 	public:
 		Clickable();
 		Clickable(Vect<2> (&corners)[N]);
-		virtual ~Clickable();
+		virtual ~Clickable()=default;
 
 		virtual void update(Vect<2> (&corners)[N]);
 		virtual bool isInnerPoint(float x, float y) const;
 		virtual void validate(int x, int y, MouseBotton<sf::Event::MouseButtonPressed>);		
 		virtual void validate(int x, int y, MouseBotton<sf::Event::MouseButtonReleased>);
 		virtual bool isValid() const;
-		virtual void isValid(bool valid);
 		const Vect<2>& getCentroid() const;
 
 	protected:
@@ -57,8 +54,8 @@ class Clickable
 
 template<int N>
 Clickable<N>::Clickable()
-:m_valid(false),
-m_active(true)
+:m_valid(false)
+, m_active(true)
 {}
 
 //----------------------------------------------------------------------
@@ -73,16 +70,9 @@ Clickable<N>::Clickable(Vect<2> (&corners)[N])
 //----------------------------------------------------------------------
 
 template<int N>
-Clickable<N>::~Clickable()
-{}
-
-//----------------------------------------------------------------------
-
-template<int N>
 void Clickable<N>::update(Vect<2> (&corners)[N])
 {
 	m_centroid*=0.0;
-
 	for(int i=0; i<N; i++){
 		m_edges[i].updateLine(corners[i], corners[(i+1)%N]);
 		m_centroid+=corners[i];
@@ -105,7 +95,6 @@ bool Clickable<N>::isInnerPoint(float x, float y) const
 	for(int i=0; i<N; i++){
 		criteria=criteria | (m_edges[i].sider(x, y)<<i);
 	}
-
 	return (criteria==m_criteria);
 }
 
@@ -141,61 +130,19 @@ bool Clickable<N>::isValid() const
 //----------------------------------------------------------------------
 
 template<int N>
-void Clickable<N>::isValid(bool valid)
-{
-	m_valid=valid;
-}
-
-//----------------------------------------------------------------------
-
-template<int N>
 const Vect<2>& Clickable<N>::getCentroid() const
 {
 	return m_centroid;
 }
 
-//======================================================================
-//######################################################################
-//======================================================================
-
-template<char const* fontFile>
-sf::Text LabelMaker(const char* text, unsigned int characterSize=30)
-{
-	static bool isSet=false;
-	static sf::Font font;
-	if(!isSet){
-		std::string fontPath;
-		fontPath.reserve(100);
-		if(!isSet){
-			fontPath.append("/usr/share/fonts/truetype/liberation/");
-			fontPath.append(fontFile);
-			isSet=font.loadFromFile(fontPath);
-		}		
-
-		if(!isSet){	
-			char* envVar=getenv("APPDIR");
-			if(envVar){
-				fontPath=std::string(envVar);
-				fontPath.append("/usr/share/fonts/truetype/liberation/");
-				fontPath.append(fontFile);
-				isSet=font.loadFromFile(fontPath);
-				std::cout<<"here!\n";
-			}		
-		}
-	}
-
-	return sf::Text(text, font, characterSize);
-}
-
-//======================================================================
-//######################################################################
-//======================================================================
+//====================================================================
+//====================================================================
 
 class Button : public Clickable<4>
 {
 	public:
 		Button(const char* label, Command cmd);
-		virtual ~Button();
+		virtual ~Button()=default;
 
 		void setPosition(float x, float y);
 		void draw();
@@ -216,26 +163,21 @@ class Button : public Clickable<4>
 		static bool m_fontLoaded;
 };
 
-//----------------------------------------------------------------------
-
-inline Button::~Button()
-{}
-
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 inline void Button::draw()
 {
-	Normalization::m_window->draw(m_button);
-	Normalization::m_window->draw(m_label);	
+	Base::m_window->draw(m_button);
+	Base::m_window->draw(m_label);	
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 inline sf::Vector2f Button::getSize() const
 {
 	return m_button.getSize();
 }
 
-//----------------------------------------------------------------------
+//====================================================================
 
 #endif

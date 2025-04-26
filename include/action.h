@@ -2,7 +2,7 @@
 * Action class                               								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef ACTION_H
@@ -15,19 +15,17 @@ class ModuloI;
 class Action
 {
 	public:
-		virtual ~Action(){};
+		virtual ~Action()=default;
 		virtual ModuloI* move(ModuloI* modulo, int direction)=0;
 };
 
-//======================================================================
-//######################################################################
 //======================================================================
 
 template<int N>
 class ActionT : public Action
 {
 	public:
-		virtual ~ActionT(){};
+		virtual ~ActionT()=default;
 		virtual ModuloI* move(ModuloI* modulo, int direction);
 
 	protected:
@@ -77,7 +75,7 @@ class Action4 : public ActionT<4>
 {
 	public:
 		Action4(ModuloI* base, ModuloI* m0, ModuloI* m1, ModuloI* m2, ModuloI* m3);
-		~Action4(){};
+		virtual ~Action4()=default;
 };
 
 //----------------------------------------------------------------------
@@ -92,15 +90,31 @@ inline Action4::Action4(ModuloI* base, ModuloI* m0, ModuloI* m1, ModuloI* m2, Mo
 	m_modules[3]=m3;
 }
 
-//======================================================================
-//######################################################################
-//======================================================================
+class Action2 : public ActionT<2>
+{
+	public:
+		Action2(ModuloI* base, ModuloI* m0, ModuloI* m1);
+		virtual ~Action2()=default;
+};
+
+//----------------------------------------------------------------------
+
+inline Action2::Action2(ModuloI* base, ModuloI* m0, ModuloI* m1)
+{
+	assert(base && m0 && m1);
+	m_base=base;
+	m_modules[0]=m0;
+	m_modules[1]=m1;
+}
+
+//====================================================================
+//====================================================================
 
 class Action5 : public ActionT<5>
 {
 	public:
 		Action5(ModuloI* base, ModuloI* m0, ModuloI* m1, ModuloI* m2, ModuloI* m3, ModuloI* m4);
-		~Action5(){};
+		virtual ~Action5()=default;
 };
 
 //----------------------------------------------------------------------
@@ -117,6 +131,5 @@ inline Action5::Action5(ModuloI* base, ModuloI* m0, ModuloI* m1, ModuloI* m2, Mo
 }
 
 //----------------------------------------------------------------------
-
 
 #endif

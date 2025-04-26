@@ -2,26 +2,19 @@
 *  Puzzle class                                								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef PUZZLE_H
 #define PUZZLE_H
-
-#include <SFML/Graphics.hpp>
-#include <functional>
-
 #include "base.h"
-#include "modulo.h"
-#include "state_machine.h"
-#include "utilities.h"
-#include "constants.h"
 #include "cell.h"
-#include "line.h"
+#include "constants.h"
+#include "modulo.h"
 #include "puzzle_interface.h"
+#include "state_machine.h"
 
-
-//######################################################################
+//====================================================================
 
 struct PuzzleSettings
 {
@@ -43,15 +36,15 @@ class Puzzle<Data, true> : public PuzzleI
 	public:
 		Puzzle(std::shared_ptr<RSpace<3>> RS, double rotationAngle);		
 		virtual ~Puzzle();
-		
+
 		virtual void setMove(const Instruction& instruction);
 		virtual void setFastMove(const Instruction& instruction);
 		virtual bool isReady2() const;
 		int getTotalModulos() const;
 		void draw();
 		void execute();
-		
-		void draw(Camera* cm);
+
+		void draw(CAM c);
 
 	protected:
 		void setMoveState(const Instruction& instruction, State* moveState);
@@ -74,15 +67,15 @@ class Puzzle<Data, true> : public PuzzleI
 
 template<typename Data>
 Puzzle<Data, true>::Puzzle(std::shared_ptr<RSpace<3>> RS, double rotationAngle)
-:m_RS(RS),
-m_paintOrder(Data::TOTAL_CELLS, 0),
-m_distances(Data::TOTAL_CELLS, 0.0),
-m_fastRotationState{new FastRotating(rotationAngle)},
-m_rotationState{new Rotating(rotationAngle)},
-m_idelState{new Idel()},
-m_currentState{m_idelState},
-m_signal(Signal::Ready),
-m_ready2{true}
+:m_paintOrder(Data::TOTAL_CELLS, 0)
+, m_distances(Data::TOTAL_CELLS, 0.0)
+, m_RS(RS)
+, m_fastRotationState{new FastRotating(rotationAngle)}
+, m_rotationState{new Rotating(rotationAngle)}
+, m_idelState{new Idel()}
+, m_currentState{m_idelState}
+, m_signal(Signal::Ready)
+, m_ready2{true}
 {
 	for(unsigned int i=0; i<Data::TOTAL_CELLS; i++){
 		m_cells[i]=nullptr;
@@ -118,8 +111,9 @@ inline int Puzzle<Data, true>::getTotalModulos() const
 
 //----------------------------------------------------------------------
 
+// virtual methods/function should not be inlined!
 template<typename Data>
-inline bool Puzzle<Data, true>::isReady2() const
+bool Puzzle<Data, true>::isReady2() const
 {
 	return m_ready2;
 }
@@ -138,16 +132,17 @@ inline void Puzzle<Data, true>::setMoveState(const Instruction& instruction, Sta
 
 //----------------------------------------------------------------------
 
+// virtual methods/function should not be inlined!
 template<typename Data>
-inline void Puzzle<Data, true>::setMove(const Instruction& instruction)
+void Puzzle<Data, true>::setMove(const Instruction& instruction)
 {
 	setMoveState(instruction, m_rotationState);
 }
 
 //----------------------------------------------------------------------
-
+// virtual methods/function should not be inlined!
 template<typename Data>
-inline void Puzzle<Data, true>::setFastMove(const Instruction& instruction)
+void Puzzle<Data, true>::setFastMove(const Instruction& instruction)
 {
 	setMoveState(instruction, m_fastRotationState);
 }
@@ -170,21 +165,21 @@ inline void Puzzle<Data, true>::execute()
 template<typename Data>
 inline void Puzzle<Data, true>::draw()
 {	
-	if(Camera::m_Cameras[0]){
-		draw(Camera::m_Cameras[0]);
+	if(CameraManager::isCameraAvailable(CAM::A)){		
+		draw(CAM::A);
 	}
-	if(Camera::m_Cameras[1]){
-		draw(Camera::m_Cameras[1]);
+	if(CameraManager::isCameraAvailable(CAM::B)){
+		draw(CAM::B);
 	}
 }
 
 //----------------------------------------------------------------------
 
 template<typename Data>
-void Puzzle<Data, true>::draw(Camera* cm)
+void Puzzle<Data, true>::draw(CAM c)
 {
-	Shape::setCamera(cm);
-
+	CameraManager::setCamera(c);
+	
 	for(unsigned int i=0; i<Data::TOTAL_CELLS; i++){
 		m_distances[i]=m_cells[i]->quasiDistanceToCamera();
 		m_paintOrder[i]=i;

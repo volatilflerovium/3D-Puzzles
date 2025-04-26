@@ -15,7 +15,7 @@ struct Instruction;
 class PuzzleI
 {
 	public:
-		virtual ~PuzzleI(){};
+		virtual ~PuzzleI()=default;
 		virtual bool isReady2() const=0;
 		virtual void draw()=0;
 		virtual void execute()=0;

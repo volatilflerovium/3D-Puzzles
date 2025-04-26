@@ -1,14 +1,16 @@
-#include "../include/game_state_machine.h"
-#include "../include/game_state.h"
-#include "../include/puzzle.h"
+#include "game_state_machine.h"
+#include "game_state.h"
+#include "puzzle.h"
+#include "camera.h"
 
 //----------------------------------------------------------------------
 
-GameStateMachine* GameStateMachine::m_instance(nullptr);
-
 std::shared_ptr<RSpace<3>> GameStateMachine::Global(RSpace<3>::maker({0, 0, 0}, {0, 0, 0}));
 
-Camera GameStateMachine::m_CameraView(GameStateMachine::Global->spawn({5700, 0, 0}, {0, 0, 0.0}), 1.0, 0.3, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
+/*
+Camera GameStateMachine::m_CameraView(GameStateMachine::Global->spawn({5700, 0, 0}, {0, 0, 0.0}), 1.0, 0.3, 0, 0, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
+Camera GameStateMachine::m_CameraView2(GameStateMachine::Global->spawn({-5700, 0, 0}, {0, 0, 0.0}), 1.0, 0.3, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
+//*/
 
 //----------------------------------------------------------------------
 
@@ -16,22 +18,28 @@ GameStateMachine::GameStateMachine()
 :current_state(nullptr),
 previous_state(nullptr)
 {
+	CameraManager::init<CAM::A>(GameStateMachine::Global->spawn({5700, 0, 0}, {0, 0, 0.0}), 1.0, 0.3, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
+
 	Initial* initial=new Initial;
+
 	registerState(States::Initial, initial);
 
 	initial->addButton(new Button("Dogic", [](){
 		GameStateMachine::loadSubMenu(States::Dogic);
 	}));
+
 	registerState(States::Dogic, new PlayDogic);
 
 	initial->addButton(new Button("Dogic12", [](){
 		GameStateMachine::loadSubMenu(States::Dogic12);
 	}));
+	
 	registerState(States::Dogic12, new PlayDogic12);
 
 	initial->addButton(new Button("Rubik", [](){
 		GameStateMachine::loadSubMenu(States::Rubik);
 	}));
+	
 	registerState(States::Rubik, new PlayRubik);//*/
 
 	initial->addButton(new Button("Exit", [](){
@@ -46,10 +54,8 @@ previous_state(nullptr)
 
 GameStateMachine* GameStateMachine::getStateMachine()
 {
-	if(!m_instance){
-		m_instance=new GameStateMachine;
-	}
-	return m_instance;
+	static InstanceManager instance;
+	return instance.m_stateMachinePtr;
 }
 
 //----------------------------------------------------------------------
@@ -63,63 +69,61 @@ GameStateMachine::~GameStateMachine()
 
 //----------------------------------------------------------------------
 
-void GameStateMachine::terminate()
-{
-	delete m_instance;
-}
-
-//----------------------------------------------------------------------
-
 void GameStateMachine::loadState(States stateID)
 {
-	if(m_instance->s_states.find(stateID)!=m_instance->s_states.end()){
-		if(m_instance->current_state){
-			m_instance->current_state->exit();
-		}
-		m_instance->current_state=(m_instance->s_states)[stateID];
-		m_instance->current_state->enter();
-	}
-	else{
-		throw "State not found.";
-	}
+	getStateMachine()->_loadState(stateID);
 }
 
 //----------------------------------------------------------------------
 
 void GameStateMachine::loadSubMenu(States stateID)
 {
-	if(m_instance->s_states.find(States::Submenu)!=m_instance->s_states.end()){
-		if(m_instance->current_state){
-			m_instance->current_state->exit();
-		}
-		m_instance->current_state=(m_instance->s_states)[States::Submenu];
-		m_instance->current_state->exit();
-		
-		dynamic_cast<Submenu*>(m_instance->current_state)->addButton(new Button("Load Last Session", [=](){
-			dynamic_cast<Play*>((m_instance->s_states)[stateID])->loadLastSession();
+	auto instancePtr=getStateMachine();
+	instancePtr->_loadState(States::Submenu, [instancePtr, stateID](){
+		dynamic_cast<Submenu*>(instancePtr->current_state)->addButton(new Button("Load Last Session", [=](){
+			dynamic_cast<Play*>((instancePtr->s_states)[stateID])->loadLastSession(true);
 			GameStateMachine::loadState(stateID);
 		}));
 	
-		dynamic_cast<Submenu*>(m_instance->current_state)->addButton(new Button("New Game", [=](){
+		dynamic_cast<Submenu*>(instancePtr->current_state)->addButton(new Button("New Game", [=](){
+			dynamic_cast<Play*>((instancePtr->s_states)[stateID])->loadLastSession(false);
 			GameStateMachine::loadState(stateID);
 		}));
-		m_instance->current_state->enter();
-	}
-	else{
-		throw "State not found.";
-	}
+	});
 }
+
 //----------------------------------------------------------------------
 
 void GameStateMachine::executeState()
 {
-	current_state->execute();
+	getStateMachine()->current_state->execute();
 }
 //----------------------------------------------------------------------
 
 void GameStateMachine::render()
 {
-	current_state->render();
+	getStateMachine()->current_state->render();
+}
+
+//----------------------------------------------------------------------
+
+void GameStateMachine::_loadState(States stateID, std::function<void(void)> cbk)
+{
+	if(s_states.find(stateID)!=s_states.end()){
+		if(current_state){
+			current_state->exit();
+		}
+		current_state=s_states[stateID];
+
+		if(cbk){
+			cbk();
+		}
+
+		current_state->enter();
+	}
+	else{
+		throw "State not found.";
+	}
 }
 
 //----------------------------------------------------------------------
@@ -130,7 +134,7 @@ void GameStateMachine::eventHandler(const sf::Event& event)
 		loadState(States::Initial);
 	}
 	else{
-		current_state->eventHandler(event);
+		getStateMachine()->current_state->eventHandler(event);
 	}
 }	
 

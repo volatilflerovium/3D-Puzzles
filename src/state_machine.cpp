@@ -1,17 +1,16 @@
-#include "../include/state_machine.h"
-#include "../include/modulo.h"
+#include "state_machine.h"
+#include "modulo.h"
 
-//======================================================================
+//====================================================================
 
 Rotating::Rotating(double angle)
-:
-c_angle(angle),
-m_currentAngle(0),
-m_direction(-1),
-m_signal(Signal::Ready)
+:c_angle(angle)
+, m_currentAngle(0)
+, m_direction(-1)
+, m_signal(Signal::Ready)
 {}
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 void Rotating::enter(ModuloI* modulo, const Instruction& instruction)
 {
@@ -30,7 +29,7 @@ void Rotating::enter(ModuloI* modulo, const Instruction& instruction)
 	m_currentModulo->disconnectCells();
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 Signal Rotating::execute()
 {
@@ -47,7 +46,7 @@ Signal Rotating::execute()
 	return m_signal;
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 void Rotating::exit()
 {
@@ -55,9 +54,8 @@ void Rotating::exit()
 	m_currentModulo->reconnectCells(m_direction);
 }
 
-//======================================================================
-//######################################################################
-//======================================================================
+//====================================================================
+//====================================================================
 
 void FastRotating::enter(ModuloI* modulo, const Instruction& instruction)
 {
@@ -76,7 +74,7 @@ void FastRotating::enter(ModuloI* modulo, const Instruction& instruction)
 	m_currentModulo->disconnectCells();
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 Signal FastRotating::execute()
 {
@@ -87,4 +85,4 @@ Signal FastRotating::execute()
 	return m_signal;
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------

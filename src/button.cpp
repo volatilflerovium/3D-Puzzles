@@ -1,5 +1,5 @@
-#include <iostream>
-#include "../include/button.h"
+#include "button.h"
+#include "utilities.h"
 
 //----------------------------------------------------------------------
 
@@ -10,16 +10,17 @@ bool Button::m_fontLoaded(false);
 //----------------------------------------------------------------------
 
 Button::Button(const char* label, Command cmd)
-:
-m_cmd(cmd),
+:m_cmd(cmd),
 m_posX(0),
 m_posY(0)
 {
 	m_button.setFillColor(sf::Color(36, 198, 84));
 
 	m_label=LabelMaker<FontLSR>(label, 24);
+	//m_label.setCharacterSize(24); // in pixels, not points!			
 	m_label.setFillColor(sf::Color::Black);
-	m_label.setStyle(sf::Text::Bold);
+
+	m_label.setStyle(sf::Text::Bold);// | sf::Text::Underlined);
 
 	sf::Rect<float> txtSize=m_label.getGlobalBounds();
 	
@@ -47,8 +48,6 @@ void Button::setPosition(float x, float y)
 	float yy=m_posY-(c_padding-s_paddingY);
 	m_label.setPosition(Normalization::absolute(m_posX+c_padding, yy));
 
-	sf::Vector2f a=Normalization::absolute(m_posX, m_posY);
-
 	sf::Vector2f tmp=m_button.getSize(); 
 	Vect<2> corners[4];
 	corners[0]=Vect<2>{x, y};
@@ -69,12 +68,13 @@ void Button::eventHandler(const sf::Event& event)
 
 	sf::Vector2i mousePosition=Normalization::getMousePosition();
 
+	
 	if(event.type==sf::Event::MouseButtonPressed &&
 		sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
 		validate(mousePosition.x, mousePosition.y, MouseBotton<sf::Event::MouseButtonPressed>());
 	}
-	else if(event.type==sf::Event::MouseButtonReleased){				
+	else if(event.type==sf::Event::MouseButtonReleased){
 		validate(mousePosition.x, mousePosition.y, MouseBotton<sf::Event::MouseButtonReleased>());
 		if(isValid()){
 			m_cmd();
@@ -82,5 +82,4 @@ void Button::eventHandler(const sf::Event& event)
 	}
 }
 
-//----------------------------------------------------------------------
-
+//====================================================================

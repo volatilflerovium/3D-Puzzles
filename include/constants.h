@@ -2,7 +2,7 @@
 #define HELPER_H
 
 #include <cmath>
-//#include <iostream>
+
 //----------------------------------------------------------------------
 
 const int WINDOW_WIDTH=1000;
@@ -17,7 +17,7 @@ const double SL=300.0;
 
 const double DELTA_ROTATION=2.0;
 
-const double DELTA_ANGLE=5.0;
+const double DELTA_ANGLE=2.0;
 
 const double phi=0.5*(1+std::sqrt(5));
 const double scale=1.7;
@@ -29,6 +29,8 @@ char const RUBIK_FILE[]=".rubik_session";
 char const FontLSR[]="LiberationSerif-Regular.ttf";
 char const FontLMR[]="LiberationMono-Regular.ttf";
 
+
 //----------------------------------------------------------------------
+
 
 #endif

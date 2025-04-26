@@ -2,8 +2,8 @@
 * Vect<D>, Vect<2>, Vect<3>, Rotation classes  								*
 * Alg<D> struct                                                      *
 *                                                                    *
-* Version: 2.0                                                       *
-* Date:    20-09-2022                                                *
+* Version: 2.5                                                       *
+* Date:    20-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 
@@ -74,9 +74,7 @@ class Vect
 template<int D>
 Vect<D>::Vect()
 {
-	for(int i=0; i<D; i++){
-		m_V[i]=1.0;
-	}
+	std::memset(m_V, 0, D*sizeof(double));
 }
 
 //===================================================================
@@ -90,11 +88,10 @@ Vect<D>::Vect(unsigned int i)
 
 template<int D>
 Vect<D>::Vect(unsigned int i, double p)
+:Vect()
 {
 	assertm(i<D, "Dimension does not match");
-
-	std::memset(m_V, 0, D*sizeof(double));
-	m_V[i]=1.0*p;
+	m_V[i]=p;
 }
 
 //===================================================================
@@ -110,13 +107,7 @@ Vect<D>::Vect(double (&arr)[D])
 template<int D>
 Vect<D> Vect<D>::canonical(unsigned int i)
 {
-	Vect<D> result;
-	for(int j=0; j<D; j++){
-		if(j!=i){
-			result.m_V[i]=0;
-		}
-	}
-	return result;
+	return Vect<D>(i, 1);
 }
 
 //===================================================================
@@ -125,6 +116,7 @@ template<int D>
 Vect<D>::Vect(std::initializer_list<double> l)
 :Vect()
 {
+	assertm(l.size()==D, "Dimension does not match");
 	int i=0;
 	for(double x : l){
 		m_V[i++]=x;
@@ -167,15 +159,10 @@ bool Vect<D>::operator==(const Vect<D>& W)
 	if(this==&W){
 		return true;
 	}
-	
-	for(int i=0; i<D; i++){
-		if(m_V[i]!=W.m_V[i]){
-			return false;
-		}
-	}
-	
-	return true;
+
+	return std::memcmp(m_V, W.m_V, D*sizeof(double))==0;
 }
+
 //===================================================================
 
 template<int D>
@@ -245,6 +232,7 @@ Vect<D>& Vect<D>::operator*=(double f)
 template<int D>
 inline double Vect<D>::operator[](unsigned int i)const 
 {
+	assert(i<D);
 	return m_V[i];
 }
 
@@ -274,7 +262,7 @@ double Vect<D>::norm() const
 template<int D>
 inline Vect<D>& Vect<D>::normalize()
 {
-	(*this)*=1/norm();
+	(*this)*=1.0/norm();
 	return *this;
 }
 
@@ -333,589 +321,6 @@ inline Vect<D> Vect<D>::projectTo(const Vect<D>& W)
 	double r=angCos(W)*this->norm();
 	U*=r;
 	return U;
-}
-
-//===================================================================
-//###################################################################
-//===================================================================
-
-template<>
-class Vect<2>
-{
-	public:
-		Vect();
-		Vect(unsigned int i, double p);
-		explicit Vect(unsigned int i);
-
-		Vect(double (&arr)[2]);
-		Vect(const Vect<2>& V);
-		Vect(std::initializer_list<double> l);
-		int get_dimension() const;
-
-		Vect<2>& operator=(const Vect<2>& V);		
-		bool operator==(const Vect<2>& v);
-		bool operator!=(const Vect<2>& v);
-		Vect<2>& operator+=(const Vect<2>& w);
-		Vect<2>& operator-=(const Vect<2>& w);
-		Vect<2> operator+(const Vect<2>& W);
-		Vect<2> operator-(const Vect<2>& W);
-		Vect<2>& operator*=(double f);
-
-		static Vect canonical(unsigned int i);
-
-		double operator[](unsigned int i)const;
-
-		// utilities
-		double norm() const;
-		double quasiNorm() const;
-		Vect<2>& canonical_reflexion(unsigned int p);
-		Vect<2>& normalize();
-
-		double innerProduct(const Vect<2>& W);
-		double angCos(const Vect<2>& W);
-
-		//Orthogonal projection on vector W
-		Vect<2> projectTo(const Vect<2>& W);
-
-		void fastOp(double f, const Vect<2>& W);
-
-	private:
-		double m_V[2];
-};
-
-//===================================================================
-
-inline Vect<2>::Vect()
-{
-	m_V[0]=1.0;
-	m_V[1]=1.0;
-}
-
-//===================================================================
-
-inline Vect<2>::Vect(unsigned int i)
-:Vect(i, 1.0)
-{}
-
-//===================================================================
-
-inline Vect<2>::Vect(unsigned int i, double p)
-{
-	assert(i<2);
-	
-	m_V[0]=0.0;
-	m_V[1]=0.0;
-	m_V[i]=1.0*p;
-}
-
-//===================================================================
-
-inline Vect<2>::Vect(double (&arr)[2])
-{
-	m_V[0]=arr[0];
-	m_V[1]=arr[1];
-}
-
-//===================================================================
-
-inline Vect<2> Vect<2>::canonical(unsigned int i)
-{
-	assert(i<2);
-	double result[]={0.0, 0.0};
-	result[i]=1.0;
-	
-	return result;
-}
-
-//===================================================================
-
-inline Vect<2>::Vect(std::initializer_list<double> l)
-:Vect()
-{
-	int i=0;
-	for(double x : l){
-		m_V[i++]=x;
-		if(i==2){
-			break;
-		}
-	}
-}
-
-//===================================================================
-
-inline Vect<2>::Vect(const Vect<2>& W)
-{
-	m_V[0]=W.m_V[0];
-	m_V[1]=W.m_V[1];
-}
-
-//===================================================================
-
-inline int Vect<2>::get_dimension() const
-{
-	return 2;
-}
-
-//===================================================================
-
-inline Vect<2>& Vect<2>::operator=(const Vect<2>& W)
-{
-	m_V[0]=W.m_V[0];
-	m_V[1]=W.m_V[1];
-	return *this;
-}
-
-//===================================================================
-
-inline bool Vect<2>::operator==(const Vect<2>& W)
-{
-	if(this==&W){
-		return true;
-	}
-	return m_V[0]==W.m_V[0] && m_V[1]==W.m_V[1];
-}
-//===================================================================
-
-inline bool Vect<2>::operator!=(const Vect<2>& W)
-{
-	return !(*this==W);
-}
-
-//===================================================================
-
-inline Vect<2>& Vect<2>::operator+=(const Vect<2>& W)
-{
-	m_V[0]=m_V[0]+W.m_V[0];	
-	m_V[1]=m_V[1]+W.m_V[1];	
-	
-	return *this;
-}
-
-//===================================================================
-
-inline Vect<2>& Vect<2>::operator-=(const Vect<2>& W)
-{
-	m_V[0]=m_V[0]-W.m_V[0];	
-	m_V[1]=m_V[1]-W.m_V[1];	
-	return *this;
-}
-
-//===================================================================
-
-inline Vect<2> Vect<2>::operator+(const Vect<2>& W)
-{ 
-	Vect<2> V(*this);
-	V+=W;
-	
-	return V;
-}
-
-//===================================================================
-
-inline Vect<2> Vect<2>::operator-(const Vect<2>& W)
-{	
-	Vect<2> V(*this);
-	V-=W;
-	return V;
-}
-
-//===================================================================
-
-inline Vect<2>& Vect<2>::operator*=(double f)
-{
-	m_V[0]=m_V[0]*f;	
-	m_V[1]=m_V[1]*f;	
-
-	return *this;
-}
-
-//===================================================================
-
-inline double Vect<2>::operator[](unsigned int i) const 
-{
-	assert(i<2);
-	return m_V[i];
-}
-
-//===================================================================
-
-inline double Vect<2>::quasiNorm() const
-{
-	double sum=m_V[0]*m_V[0];
-	sum+=m_V[1]*m_V[1];
-
-	return sum;
-}
-
-//===================================================================
-
-inline double Vect<2>::norm() const
-{
-	return sqrt(quasiNorm());
-}
-
-//===================================================================
-
-inline Vect<2>& Vect<2>::normalize()
-{
-	(*this)*=1/norm();
-	return *this;
-}
-
-//===================================================================
-/*
-This is a reflexion with respect to the hyperplane orthogonal to the p-th
-element of the canonical base.
-*/
-
-inline Vect<2>& Vect<2>::canonical_reflexion(unsigned int p)
-{
-	assert(p<2);
-	m_V[p]*=-1.0;
-	return *this;
-}
-
-
-//===================================================================
-
-inline void Vect<2>::fastOp(double f, const Vect<2>& W)
-{
-	m_V[0]=m_V[0]+f*W.m_V[0];
-	m_V[1]=m_V[1]+f*W.m_V[1];
-}
-
-//===================================================================
-
-inline double Vect<2>::innerProduct(const Vect<2>& W)
-{
-	double dprod=m_V[0]*W.m_V[0];
-	dprod=dprod+m_V[1]*W[1];
-
-	return dprod;
-}
-
-//===================================================================
-
-inline double Vect<2>::angCos(const Vect<2>& W)
-{
-	return innerProduct(W)/(norm()*W.norm());
-}
-
-//===================================================================
-
-inline Vect<2> Vect<2>::projectTo(const Vect<2>& W)
-{
-	Vect<2> U=W;
-	U.normalize();
-	double r=angCos(W)*this->norm();
-	U*=r;
-	return U;
-}
-
-//===================================================================
-
-inline std::ostream& operator<<(std::ostream& out, const Vect<2>& v)
-{
-	out<<'('<<v[0]<<", "<<v[1]<<')';
-	return out;
-}
-
-//===================================================================
-//###################################################################
-//===================================================================
-
-template<>
-class Vect<3>
-{
-	public:
-		Vect();
-		Vect(unsigned int i, double p);
-		explicit Vect(unsigned int i);
-
-		Vect(double (&arr)[3]);
-		Vect(const Vect<3>& V);
-		Vect(std::initializer_list<double> l);
-		int get_dimension() const;
-
-		Vect<3>& operator=(const Vect<3>& V);		
-		bool operator==(const Vect<3>& v);
-		bool operator!=(const Vect<3>& v);
-		Vect<3>& operator+=(const Vect<3>& w);
-		Vect<3>& operator-=(const Vect<3>& w);
-		Vect<3> operator+(const Vect<3>& W);
-		Vect<3> operator-(const Vect<3>& W);
-		Vect<3>& operator*=(double f);
-
-		static Vect canonical(unsigned int i);
-
-		double operator[](unsigned int i)const;
-
-		// utilities
-		double norm() const;
-		double quasiNorm() const;
-		Vect<3>& canonical_reflexion(unsigned int p);
-		Vect<3>& normalize();
-
-		double innerProduct(const Vect<3>& W);
-		double angCos(const Vect<3>& W);
-
-		//Orthogonal projection on vector W
-		Vect<3> projectTo(const Vect<3>& W);
-		void fastOp(double f, const Vect<3>& W);
-
-	private:
-		double m_V[3];
-};
-
-//===================================================================
-
-inline Vect<3>::Vect()
-{
-	m_V[0]=1.0;
-	m_V[1]=1.0;
-	m_V[2]=1.0;
-}
-
-//===================================================================
-
-inline Vect<3>::Vect(unsigned int i)
-:Vect(i, 1.0)
-{}
-
-//===================================================================
-
-inline Vect<3>::Vect(unsigned int i, double p)
-{
-	assert(i<3);
-	
-	m_V[0]=0.0;
-	m_V[1]=0.0;
-	m_V[2]=0.0;
-	m_V[i]=1.0*p;
-
-}
-
-//===================================================================
-
-inline Vect<3>::Vect(double (&arr)[3])
-{
-	m_V[0]=arr[0];
-	m_V[1]=arr[1];
-	m_V[2]=arr[2];
-}
-
-//===================================================================
-
-inline Vect<3> Vect<3>::canonical(unsigned int i)
-{
-	assert(i<3);
-	double result[]={0.0, 0.0, 0.0};
-	result[i]=1.0;
-	
-	return result;
-}
-
-//===================================================================
-
-inline Vect<3>::Vect(std::initializer_list<double> l)
-:Vect()
-{
-	int i=0;
-	for(double x : l){
-		m_V[i++]=x;
-		if(i==3){
-			break;
-		}
-	}
-}
-
-//===================================================================
-
-inline Vect<3>::Vect(const Vect<3>& W)
-{
-	m_V[0]=W.m_V[0];
-	m_V[1]=W.m_V[1];
-	m_V[2]=W.m_V[2];
-}
-
-//===================================================================
-
-inline int Vect<3>::get_dimension() const
-{
-	return 3;
-}
-
-//===================================================================
-
-inline Vect<3>& Vect<3>::operator=(const Vect<3>& W)
-{
-	m_V[0]=W.m_V[0];
-	m_V[1]=W.m_V[1];
-	m_V[2]=W.m_V[2];
-	return *this;
-}
-
-//===================================================================
-
-inline bool Vect<3>::operator==(const Vect<3>& W)
-{
-	if(this==&W){
-		return true;
-	}
-	return m_V[0]==W.m_V[0] && m_V[1]==W.m_V[1] && m_V[2]==W.m_V[2];
-}
-
-//===================================================================
-
-inline bool Vect<3>::operator!=(const Vect<3>& W)
-{
-	return !(*this==W);
-}
-
-//===================================================================
-
-inline Vect<3>& Vect<3>::operator+=(const Vect<3>& W)
-{
-	m_V[0]=m_V[0]+W.m_V[0];	
-	m_V[1]=m_V[1]+W.m_V[1];	
-	m_V[2]=m_V[2]+W.m_V[2];	
-	
-	return *this;
-}
-
-//===================================================================
-
-inline Vect<3>& Vect<3>::operator-=(const Vect<3>& W)
-{
-	m_V[0]=m_V[0]-W.m_V[0];	
-	m_V[1]=m_V[1]-W.m_V[1];
-	m_V[2]=m_V[2]-W.m_V[2];
-
-	return *this;
-}
-
-//===================================================================
-
-inline Vect<3> Vect<3>::operator+(const Vect<3>& W)
-{ 
-	Vect<3> V(*this);
-	V+=W;
-	
-	return V;
-}
-
-//===================================================================
-
-inline Vect<3> Vect<3>::operator-(const Vect<3>& W)
-{	
-	Vect<3> V(*this);
-	V-=W;
-
-	return V;
-}
-
-//===================================================================
-
-inline Vect<3>& Vect<3>::operator*=(double f)
-{
-	m_V[0]=m_V[0]*f;	
-	m_V[1]=m_V[1]*f;	
-	m_V[2]=m_V[2]*f;	
-
-	return *this;
-}
-
-//===================================================================
-
-inline double Vect<3>::operator[](unsigned int i) const 
-{
-	assert(i<3);
-	return m_V[i];
-}
-
-//===================================================================
-
-inline double Vect<3>::quasiNorm() const
-{
-	double sum=m_V[0]*m_V[0];
-	sum+=m_V[1]*m_V[1];
-	sum+=m_V[2]*m_V[2];
-
-	return sum;
-}
-
-//===================================================================
-
-inline double Vect<3>::norm() const
-{
-	return sqrt(quasiNorm());
-}
-
-//===================================================================
-
-inline Vect<3>& Vect<3>::normalize()
-{
-	(*this)*=1/norm();
-	return *this;
-}
-
-//===================================================================
-/*
-This is a reflexion with respect to the hyperplane orthogonal to the p-th
-element of the canonical base.
-*/
-
-inline Vect<3>& Vect<3>::canonical_reflexion(unsigned int p)
-{
-	assert(p<3);
-	m_V[p]*=-1.0;
-	return *this;
-}
-
-//===================================================================
-
-inline void Vect<3>::fastOp(double f, const Vect<3>& W)
-{
-	m_V[0]=m_V[0]+f*W.m_V[0];
-	m_V[1]=m_V[1]+f*W.m_V[1];
-	m_V[2]=m_V[2]+f*W.m_V[2];
-}
-
-//===================================================================
-
-inline double Vect<3>::innerProduct(const Vect<3>& W)
-{
-	double dprod=m_V[0]*W.m_V[0];
-	dprod=dprod+m_V[1]*W.m_V[1];
-	dprod=dprod+m_V[2]*W.m_V[2];
-
-	return dprod;
-}
-
-//===================================================================
-
-inline double Vect<3>::angCos(const Vect<3>& W)
-{
-	return innerProduct(W)/(norm()*W.norm());
-}
-
-//===================================================================
-
-inline Vect<3> Vect<3>::projectTo(const Vect<3>& W)
-{
-	Vect<3> U(W);
-	U.normalize();
-	double r=angCos(W)*this->norm();
-	U*=r;
-	return U;
-}
-
-//===================================================================
-
-inline std::ostream& operator<<(std::ostream& out, const Vect<3>& v)
-{
-	out<<'('<<v[0]<<", "<<v[1]<<", "<<v[2]<<')';
-	return out;
 }
 
 //===================================================================
@@ -1077,7 +482,7 @@ double angCos(const Vect<D>& V, const Vect<D>& W)
 template<int D>
 Vect<D-1> projection(const Vect<D>& V, unsigned int p)
 {
-	double w[D];
+	double w[D-1];
 	int j=0;
 
 	for(int i=0; i<D; i++){
@@ -1109,8 +514,22 @@ inline Vect<D> getCentroid(const Vect<D>& V, const Vect<D>& W)
 }
 
 //===================================================================
+//===================================================================
 //###################################################################
 //=================================================================== 
+//===================================================================
+
+inline double deg2rad(double degs)
+{
+	if(std::fabs(degs)>=360.0){
+		degs=(std::fabs(degs)/degs)*(std::fabs(degs)-360.0);
+	}
+	return -1.0*((degs/2)*M_PI)/180.0;
+}
+
+//===================================================================
+//===================================================================
+//===================================================================
 
 template<int D>
 class Rotation
@@ -1118,73 +537,101 @@ class Rotation
 	public:		
 		Rotation()=delete;
 
-		//line of rotation is the line through origin 
-		//determined by the vector V, angle
+		/*
+		 * line of rotation is the line through origin and the point V, angle
+		 * 
+		 */
 		Rotation(const Vect<D>& V, double angle);
 
-		// line of rotation is the line determined by the vectors 
-		// vector V and W, angle
+		/*
+		 * line of rotation is the line determined by the vectors 
+		 * vector V and W, angle. 
+		*/
 		Rotation(const Vect<D>& V, const Vect<D>& W, double angle);
+
 		Rotation(const Rotation<D>& Rt);
+
+		Rotation<D>& operator=(const Rotation<D>& Rt); 
+
+		void operator()(Vect<D>& V) const;
+		void operator()(Vect<D>& V, const Vect<D>& offset) const;	
+
+void rotate(Vect<D>& V)const;
+//void rotate(Vect<D>& V, const Vect<D>& OffV);
+void revRotate(Vect<D>& V) const;
+
+
 		double getRotationAngle() const;
 
-		void rotate(Vect<D>& V, const Vect<D>& OffV) const;
-		void rotate(Vect<D>& V) const;
-		void revRotate(Vect<D>& V, const Vect<D>& OffV) const;
-		void revRotate(Vect<D>& V) const;
-		Vect<D> reverse(const Vect<D>& V);
-
 	private:
-		Vect<D> m_p1;
-		Vect<D> m_p2;
 		Vect<D> m_offset;
+		Vect<D> m_cols[D];
+		Vect<D> m_colsR[D];
 		double m_rad;
-		double m_COS;
-		double m_t;
 
-		void setup(const Vect<D>& rotation_axe);
-		double set_angle(double angle);
+		void setCols(const Vect<D>& rotation_axe);
 };
 
 //======================================================================
 
 template<int D>
-Rotation<D>::Rotation(const Rotation<D>& Rt)
-:m_p1(Rt.m_p1), 
-m_p2(Rt.m_p2), 
-m_offset(Rt.m_offset),
-m_rad(Rt.m_rad), m_COS(Rt.m_COS)
-{}
-
-//======================================================================
-
-template<int D>
 Rotation<D>::Rotation(const Vect<D>& rotation_axe, double angle)
-:m_offset(0, 0), m_rad(set_angle(angle)), m_COS(cos(m_rad))
+:m_offset(0, 0)
+, m_rad(deg2rad(angle))
 {
-	setup(rotation_axe);
+	setCols(rotation_axe);
 }
 
 //======================================================================
 
+/*
+ * line of rotation is the line determined by the vectors 
+ * vector V and W, and angle angle.
+ * Notice that the actuall rotation is done via the line that 
+ * passes though the origin and the point V-V  and with m_offset=W.
+ * 
+ * More clearly: to rotate a point around the line determined by
+ * the points V and W. The point P is traslate by offset (P-m_offset), do the rotation 
+ * and then translate and then Rt(P)+m_offset
+ * 
+ * Rt(P-W) + W
+*/
 template<int D>
 Rotation<D>::Rotation(const Vect<D>& V, const Vect<D>& W, double angle)
-:m_offset(W), m_rad(set_angle(angle)), m_COS(cos(m_rad))
+:m_offset(W)
+, m_rad(deg2rad(angle))
 {
-	setup(V-m_offset);
+	setCols(V-m_offset);
 }
 
 //======================================================================
 
 template<int D>
-double Rotation<D>::set_angle(double angle)
+Rotation<D>::Rotation(const Rotation<D>& Rt)
+: m_offset(Rt.m_offset)
+, m_rad(Rt.m_rad)
 {
-	if(fabs(angle)>=360.0){
-		angle=(fabs(angle)/angle)*(fabs(angle)-360.0);
+	for(int i=0; i<D; i++){
+		m_cols[i]=Rt.m_cols[i];
+		m_colsR[i]=Rt.m_colsR[i];
 	}
-	return -1.0*((angle/2)*M_PI)/180;
 }
 
+//===================================================================
+
+template<int D>
+Rotation<D>& Rotation<D>::operator=(const Rotation<D>& Rt)
+{
+	m_offset=Rt.m_offset;
+	m_rad=Rt.m_rad;
+
+	for(int i=0; i<D; i++){
+		m_cols[i]=Rt.m_cols[i];
+		m_colsR[i]=Rt.m_colsR[i];
+	}
+
+	return *this;
+}
 
 //======================================================================
 
@@ -1197,7 +644,7 @@ inline double Rotation<D>::getRotationAngle() const
 //======================================================================
 
 template<int D>
-void Rotation<D>::setup(const Vect<D>& rotationAxe)
+void Rotation<D>::setCols(const Vect<D>& rotationAxe)
 {
 	/*
 	First we get a canonical solution to the equation axe dot v=0.
@@ -1205,9 +652,12 @@ void Rotation<D>::setup(const Vect<D>& rotationAxe)
 	axe =(a,b,c,d);
 	v=(0,c,-b,0); where b!=0 || c!=0
 	*/
-	
-	//std::cout<<rotationAxe<<"<<--\n";
-	
+	Vect<D> mp1;
+	Vect<D> mp2;
+
+	const double COS=cos(m_rad);
+	const double SIN=sin(m_rad);
+
 	double a[D]={0, 0};
 	double b[D]={1, 1};
 	double s[D]={1, 1};
@@ -1218,7 +668,7 @@ void Rotation<D>::setup(const Vect<D>& rotationAxe)
 			a[i]=0;
 			b[i]=1;
 			s[i]=1;
-			if(fabs(rotationAxe[P[0]])+fabs(rotationAxe[P[1]])==0){
+			if(fabs(rotationAxe[P[0]])+fabs(rotationAxe[P[1]])==0.0){
 				if(rotationAxe[i]!=0.0){
 					P[0]=i-1;
 					P[1]=i;
@@ -1235,90 +685,81 @@ void Rotation<D>::setup(const Vect<D>& rotationAxe)
 		Vect<D> B(b);
 
 	   /*
-		Now, we use p to construct an orthogonal vector W 
-		WE CAN USE the cross product!! 
-		NOOO, of course NOT!!! 
-		we need something easier... and fast!
+		We do the flexion on the two planes define by...
 		*/
-		double r=rotationAxe[P[0]]*p[P[1]]-rotationAxe[P[1]]*p[P[0]];
-		s[P[0]]=(-1.0*Alg<D>::innerProduct(B, rotationAxe)*p[P[1]])/r;
-		s[P[1]]=(Alg<D>::innerProduct(B, rotationAxe)*p[P[0]])/r;
+		double r=1.0/(rotationAxe[P[0]]*p[P[1]]-rotationAxe[P[1]]*p[P[0]]);
+		s[P[0]]=(-1.0*Alg<D>::innerProduct(B, rotationAxe)*p[P[1]])*r;
+		s[P[1]]=(Alg<D>::innerProduct(B, rotationAxe)*p[P[0]])*r;
 		Vect<D> W(s);
-		m_p1=p.normalize();
+		mp1=p.normalize();
 		Vect<D> vp=W.normalize();
-		m_p2=sin(m_rad)*vp+cos(m_rad)*m_p1;
+		mp2=SIN*vp+COS*mp1;
 	}
 	else{		
-		m_p1=Vect<D>{1, 0};
+		mp1=Vect<D>{1, 0};
 		Vect<D> w{0, 1};
-		m_p2=sin(m_rad)*w+cos(m_rad)*m_p1;
+		mp2=SIN*w+COS*mp1;
+		m_offset=rotationAxe;
+	}
+
+	for(int i=0; i<D; i++){
+		m_cols[i]=Vect<D>(i);
+		double t=2.0*mp2[i];
+
+		m_cols[i].fastOp(-1.0*t, mp2);
+		m_cols[i].fastOp(2.0*(t*COS-mp1[i]), mp1);
+	}
+
+	for(int i=0; i<D; i++){
+		m_colsR[i]=Vect<D>(i);
+		double t=2.0*mp1[i];
+
+		m_colsR[i].fastOp(-1.0*t, mp1);
+		m_colsR[i].fastOp(2.0*(t*COS-mp2[i]), mp2);
+		
 	}
 }
 
 //===================================================================
 
 template<int D>
-Vect<D> Rotation<D>::reverse(const Vect<D>& V)
+void Rotation<D>::operator()(Vect<D>& V) const
 {
-	Vect<D> W(V);
-	W-=m_offset;
-	double t=2.0*Alg<D>::innerProduct(W, m_p1);
-	return V-t*m_p1+(t*2.0*m_COS-2.0*Alg<D>::innerProduct(W, m_p2))*m_p2;
-}
- 
-//======================================================================
-
-template<int D>
-void Rotation<D>::rotate(Vect<D>& V, const Vect<D>& OffV) const 
-{
-	Vect<D> W(V);
-	W-=OffV;
-	double t=2.0*Alg<D>::innerProduct(W, m_p2);
-
-	V.fastOp(-1.0*t, m_p2);
-	V.fastOp(2.0*(t*m_COS-Alg<D>::innerProduct(W, m_p1)), m_p1);
+	Vect<D> W(m_offset);
+	for(int i=0; i<D; i++){
+		W+=((V[i]-m_offset[i])*m_cols[i]);
+	}
+	V=W;
 }
 
 //===================================================================
+
+template<int D>
+void Rotation<D>::operator()(Vect<D>& V, const Vect<D>& offset) const
+{
+	V-=offset;
+	(*this)(V);
+	V+=offset;
+}
+
+//===================================================================
+
+template<int D>
+void Rotation<D>::revRotate(Vect<D>& V) const
+{
+	Vect<D> W(m_offset);
+	for(int i=0; i<D; i++){
+		W+=((V[i]-m_offset[i])*m_colsR[i]);
+	}
+	V=W;
+}
 
 template<int D>
 void Rotation<D>::rotate(Vect<D>& V) const
 {
-	rotate(V, m_offset);
+	(*this)(V);
 }
 
 //===================================================================
-
-template<int D>
-void Rotation<D>::revRotate(Vect<D>& V, const Vect<D>& OffV) const
-{
-	Vect<D> W(V);
-	W-=OffV;
-	double t=2.0*Alg<D>::innerProduct(W, m_p1);
-
-	V.fastOp(-1.0*t, m_p1);
-	V.fastOp(2.0*(t*m_COS-Alg<D>::innerProduct(W, m_p2)), m_p2);
-}
-
-//===================================================================
-
-template<int D>
-void Rotation<D>::revRotate(Vect<D>& V) const 
-{
-	revRotate(V, m_offset);
-}
-
-//======================================================================
-
-template<int D>
-Vect<D> mkRotation(const Vect<D>& V, const Vect<D>& W){
-	Vect<D> rotationAxe=crossProduct(V, W);
-
-	double ang=(std::acos(ang_cos(V, W))*180.0)/M_PI;
-
-	return Rotation<D>(rotationAxe, ang);
-}
-
-//======================================================================
 
 #endif

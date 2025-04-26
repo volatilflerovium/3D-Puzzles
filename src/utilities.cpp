@@ -1,8 +1,8 @@
+#include "utilities.h"
+
 #include <fstream>
 
-#include "../include/utilities.h"
-
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 std::string trim(const std::string& str)
 {
@@ -14,7 +14,7 @@ std::string trim(const std::string& str)
 	return str.substr(first, (last - first + 1));
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 void mkfile(const char* filePath)
 {
@@ -26,7 +26,7 @@ void mkfile(const char* filePath)
 	file.close();
 }
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 Instruction::Instruction(const std::string& str)
 :m_moduloID(-1),
@@ -34,8 +34,8 @@ m_direction(-1),
 m_short(false)
 {
 	int part=0;
-	int t=0;
-	int p=0;
+	size_t t=0;
+	size_t p=0;
 	const int ds=1;// size of separator: " "
 	while(p!=std::string::npos){
 		p=str.find(" ", t);
@@ -60,4 +60,25 @@ m_short(false)
 	}
 }
 
-//----------------------------------------------------------------------
+//====================================================================
+
+std::string resourcePath(const char* fileName)
+{
+	std::string filePath="";
+	 
+	#ifdef DEBUG
+	filePath.append(DEBUG_DIR); // define in CMakeLists
+	filePath.append("/utilities/");
+	#else
+	if(getenv("APPDIR")){
+		filePath.append(getenv("APPDIR"));
+		filePath.append("/usr/share/utilities/");
+	}
+	#endif
+
+	filePath.append(fileName);
+
+	return filePath;
+}
+
+//====================================================================

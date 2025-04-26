@@ -1,9 +1,9 @@
-#include "../include/dogic.h"
-#include "../include/tetra.h"
+#include "dogic.h"
+#include "tetra.h"
 
 //----------------------------------------------------------------------
 
-Dogic::Dogic(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices)
+Dogic::Dogic(std::shared_ptr<RSpace<3>> RS, const Vect<3>* vertices)
 :Puzzle(RS, 72.0)
 {
 	double t=Alg<3>::distance(vertices[0], vertices[1]);
@@ -34,31 +34,40 @@ Dogic::Dogic(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices)
 
 	// Top 10 pairs
 	m_cells[0]->paintFace(0, sf::Color(179, 247, 19)); 
+//m_cells[]->paintFace(0, sf::Color::Black); 
 	m_cells[11]->paintFace(0, sf::Color(179, 247, 19));
 	//--------
 	m_cells[4]->paintFace(0, sf::Color(214, 38, 76)); 
+
 	m_cells[13]->paintFace(0, sf::Color(214, 38, 76));
 	//--------
 	m_cells[3]->paintFace(0, sf::Color(1, 193, 117)); 
+	
 	m_cells[15]->paintFace(0, sf::Color(1, 193, 117));
 	//--------
 	m_cells[2]->paintFace(0, sf::Color(32, 2, 140)); 
+	
 	m_cells[17]->paintFace(0, sf::Color(32, 2, 140));
 	//--------
 	m_cells[1]->paintFace(0, sf::Color::Blue); 
+	
 	m_cells[19]->paintFace(0, sf::Color::Blue);
 
 	//--------
 	//Bottom 10 pairs
-	m_cells[12]->paintFace(0, sf::Color(17, 170, 45)); 	
+	m_cells[12]->paintFace(0, sf::Color(17, 170, 45)); 
+	
 	m_cells[5]->paintFace(0, sf::Color(17, 170, 45));
 	//--------
 	m_cells[14]->paintFace(0, sf::Color::Magenta); 
+	
 	m_cells[9]->paintFace(0, sf::Color::Magenta);
 	//-------
 	m_cells[16]->paintFace(0, sf::Color::Red);
+	
 	m_cells[8]->paintFace(0, sf::Color::Red);
 	//--------
+	
 	m_cells[10]->paintFace(0, sf::Color(39, 65, 142)); 
 	m_cells[6]->paintFace(0, sf::Color(39, 65, 142));
 	//---------
@@ -78,18 +87,18 @@ Dogic::Dogic(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices)
 	m_modules[10]=new ModuloT(vertices[10], DELTA_ROTATION);
 	m_modules[11]=new ModuloT(vertices[3], DELTA_ROTATION);
 
-	m_modules[0]->registerCells(m_cells[0], m_cells[1], m_cells[2], m_cells[3], m_cells[4]);
-	m_modules[1]->registerCells(m_cells[0], m_cells[4], m_cells[13], m_cells[12], m_cells[11]);
-	m_modules[2]->registerCells(m_cells[3], m_cells[15], m_cells[14], m_cells[13], m_cells[4]);
-	m_modules[3]->registerCells(m_cells[2], m_cells[17], m_cells[16], m_cells[15], m_cells[3]);
-	m_modules[4]->registerCells(m_cells[1], m_cells[19], m_cells[18], m_cells[17], m_cells[2]);
-	m_modules[5]->registerCells(m_cells[0], m_cells[11], m_cells[10], m_cells[19], m_cells[1]);
-	m_modules[6]->registerCells(m_cells[5], m_cells[6], m_cells[10], m_cells[11], m_cells[12]);
-	m_modules[7]->registerCells(m_cells[9], m_cells[5], m_cells[12], m_cells[13], m_cells[14]);
-	m_modules[8]->registerCells(m_cells[8], m_cells[9], m_cells[14], m_cells[15], m_cells[16]);
-	m_modules[9]->registerCells(m_cells[7], m_cells[8], m_cells[16], m_cells[17], m_cells[18]);
-	m_modules[10]->registerCells(m_cells[6], m_cells[7], m_cells[18], m_cells[19], m_cells[10]);
-	m_modules[11]->registerCells(m_cells[5], m_cells[9], m_cells[8], m_cells[7], m_cells[6]);
+	registerCells(m_modules[0], m_cells[0], m_cells[1], m_cells[2], m_cells[3], m_cells[4]);
+	registerCells(m_modules[1], m_cells[0], m_cells[4], m_cells[13], m_cells[12], m_cells[11]);
+	registerCells(m_modules[2], m_cells[3], m_cells[15], m_cells[14], m_cells[13], m_cells[4]);
+	registerCells(m_modules[3], m_cells[2], m_cells[17], m_cells[16], m_cells[15], m_cells[3]);
+	registerCells(m_modules[4], m_cells[1], m_cells[19], m_cells[18], m_cells[17], m_cells[2]);
+	registerCells(m_modules[5], m_cells[0], m_cells[11], m_cells[10], m_cells[19], m_cells[1]);
+	registerCells(m_modules[6], m_cells[5], m_cells[6], m_cells[10], m_cells[11], m_cells[12]);
+	registerCells(m_modules[7], m_cells[9], m_cells[5], m_cells[12], m_cells[13], m_cells[14]);
+	registerCells(m_modules[8], m_cells[8], m_cells[9], m_cells[14], m_cells[15], m_cells[16]);
+	registerCells(m_modules[9], m_cells[7], m_cells[8], m_cells[16], m_cells[17], m_cells[18]);
+	registerCells(m_modules[10], m_cells[6], m_cells[7], m_cells[18], m_cells[19], m_cells[10]);
+	registerCells(m_modules[11], m_cells[5], m_cells[9], m_cells[8], m_cells[7], m_cells[6]);
 
 	m_modules[0]->setAction(m_modules[2], m_modules[3], m_modules[4], m_modules[5],m_modules[1]);	
 	m_modules[1]->setAction(m_modules[0], m_modules[5], m_modules[6], m_modules[7], m_modules[2]);
@@ -104,9 +113,16 @@ Dogic::Dogic(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices)
 	m_modules[10]->setAction(m_modules[11],  m_modules[6], m_modules[5], m_modules[4], m_modules[9]);
 	m_modules[11]->setAction(m_modules[9], m_modules[8], m_modules[7], m_modules[6], m_modules[10]);
 	
-	for(int i=0; i<DogicSettings::TOTAL_MODULOS; i++){		
+	for(uint i=0; i<DogicSettings::TOTAL_MODULOS; i++){		
 		m_modules[i]->setID(i);
 	}
+}
+
+//----------------------------------------------------------------------
+
+void Dogic::registerCells(ModuloI* module, Cell* cell0, Cell* cell1, Cell* cell2, Cell* cell3,Cell* cell4)
+{
+	dynamic_cast<ModuloT*>(module)->registerCells(cell0, cell1, cell2, cell3, cell4);
 }
 
 //----------------------------------------------------------------------

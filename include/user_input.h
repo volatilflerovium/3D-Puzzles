@@ -3,27 +3,16 @@
 * UII, GroupReactiveButtons class                     					*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef USER_INPUT_H
 #define USER_INPUT_H
-
-#include <functional>
-#include <queue>
-#include <fstream>
-
 #include "handler.h"
-#include "camera.h"
-#include "button.h"
-#include "vector.h"
-#include "puzzle_interface.h"
-#include "base.h"
-#include "utilities.h"
 
-//======================================================================
-//######################################################################
-//======================================================================
+#include <queue>
+
+//====================================================================
 
 struct PuzzleMove : public Instruction
 {
@@ -42,6 +31,8 @@ struct PuzzleMove : public Instruction
 	}
 };
 
+//====================================================================
+
 struct PuzzleFastMove : public Instruction
 {
 	PuzzleFastMove(Instruction instruction)
@@ -58,15 +49,14 @@ struct PuzzleFastMove : public Instruction
 		return {-1, 1, 0};
 	}
 };
-//======================================================================
-//######################################################################
-//======================================================================
+
+//====================================================================
 
 class CommandQueue
 {
 	public:
-		CommandQueue();
-		~CommandQueue();
+		CommandQueue()=default;
+		~CommandQueue()=default;
 
 		void push(Command2 command);
 		Command2 pop();
@@ -75,18 +65,8 @@ class CommandQueue
 
 	private:
 		std::queue<Command2> m_queue;
-		bool m_removeFront{false};	
+		bool m_removeFront{false};
 };
-
-//----------------------------------------------------------------------
-
-inline CommandQueue::CommandQueue()
-{}
-
-//----------------------------------------------------------------------
-
-inline CommandQueue::~CommandQueue()
-{}
 
 //----------------------------------------------------------------------
 
@@ -98,13 +78,11 @@ inline void CommandQueue::push(Command2 command)
 //----------------------------------------------------------------------
 
 inline Command2 CommandQueue::pop()
-{
+{	
 	if(m_removeFront){
 		m_queue.pop();
 	}
-
 	m_removeFront=true;
-
 	return m_queue.front();
 }
 
@@ -112,7 +90,7 @@ inline Command2 CommandQueue::pop()
 
 inline bool CommandQueue::isEmpty() const
 {
-	return this->size()<1;
+	return (this->size())<1;
 }
 
 //----------------------------------------------------------------------
@@ -129,15 +107,42 @@ inline int CommandQueue::size() const
 class UII
 {
 	public:
+		UII(uint totalCorners)
+		{
+			m_corners=new Vect<3>[totalCorners]; 
+		}
+
+		virtual ~UII()
+		{
+			delete[] m_corners;
+		}
+
 		virtual void eventHandler(const sf::Event& event)=0;
 		virtual void updateView()=0;
 		
 		virtual void setCorners(int idx, std::initializer_list<int > dataList)=0;
 		virtual void setModulos(int idx, std::initializer_list<int > dataList)=0;
-		virtual void setOrientation(int idx, std::initializer_list<int > dataList)=0;
+		virtual void setOrientation(int idx, std::initializer_list<int > dataList)=0;		
 
-		static Vect<3>* m_corners;
+		void setVertix(uint idx, double x, double y, double z, double factor=0)
+		{
+			if(factor==0){
+				m_corners[idx]=Vect<3>{x, y, z};
+			}
+			else{
+				m_corners[idx]=Vect<3>{factor*x, factor*y, factor*z};
+			}
+		}
+
+		const Vect<3>* getCorners() const
+		{
+			return m_corners;
+		}
+
 		CommandQueue m_commandQueue;
+
+	protected:
+		Vect<3>* m_corners;
 };
 
 //----------------------------------------------------------------------
@@ -146,10 +151,11 @@ template<int ButtonSides, int TotalButtons>
 class GroupReactiveButtons : public UII
 {
 	public:
-		GroupReactiveButtons(Camera* camera)
-		:m_visibleBoundaries(TotalButtons, -1),
-		m_camera(camera)
-		{};
+		GroupReactiveButtons(int totalCorners)
+		:UII(totalCorners)
+		{}
+
+		virtual ~GroupReactiveButtons()=default;
 
 		virtual void updateView();
 		virtual void eventHandler(const sf::Event& event);
@@ -159,13 +165,13 @@ class GroupReactiveButtons : public UII
 		void setOrientation(int idx, std::initializer_list<int > dataList);
 
 	private:
-		std::vector<int> m_visibleBoundaries;
-		Camera* m_camera;
-		Handler<ButtonSides> m_boundaries[TotalButtons];
+		Handler<ButtonSides> m_handlers[TotalButtons];
 		double m_boundaryDistances[TotalButtons];
-		
-		int clickedModule(float x, float y) const;
+		std::vector<int> m_indexes;
+
+		EE clickedButtons(float x, float y) const;
 		Instruction resolveInput(int boundaryIdx, const sf::Vector2i& V, const sf::Vector2i& W);
+		int getButton(const EE& x);
 };
 
 //----------------------------------------------------------------------
@@ -173,7 +179,7 @@ class GroupReactiveButtons : public UII
 template<int ButtonSides, int TotalButtons>
 inline void GroupReactiveButtons<ButtonSides, TotalButtons>::setCorners(int idx, std::initializer_list<int > dataList)
 {
-	m_boundaries[idx].loader(m_boundaries[idx].m_corners, dataList);
+	m_handlers[idx].loader(m_handlers[idx].m_corners, dataList);
 }
 
 //----------------------------------------------------------------------
@@ -181,7 +187,7 @@ inline void GroupReactiveButtons<ButtonSides, TotalButtons>::setCorners(int idx,
 template<int ButtonSides, int TotalButtons>
 inline void GroupReactiveButtons<ButtonSides, TotalButtons>::setModulos(int idx, std::initializer_list<int > dataList)
 {
-	m_boundaries[idx].loader(m_boundaries[idx].m_moduleIndexes, dataList);
+	m_handlers[idx].loader(m_handlers[idx].m_moduleIndexes, dataList);
 }
 
 //----------------------------------------------------------------------
@@ -189,21 +195,22 @@ inline void GroupReactiveButtons<ButtonSides, TotalButtons>::setModulos(int idx,
 template<int ButtonSides, int TotalButtons>
 inline void GroupReactiveButtons<ButtonSides, TotalButtons>::setOrientation(int idx, std::initializer_list<int > dataList)
 {
-	m_boundaries[idx].loader(m_boundaries[idx].m_orientation, dataList);
+	m_handlers[idx].loader(m_handlers[idx].m_orientation, dataList);
 }
 
 //----------------------------------------------------------------------
 
 template<int ButtonSides, int TotalButtons>
-int GroupReactiveButtons<ButtonSides, TotalButtons>::clickedModule(float x, float y) const
+EE GroupReactiveButtons<ButtonSides, TotalButtons>::clickedButtons(float x, float y) const
 {
+	EE clicked;
 	for(int i=0; i<TotalButtons; i++){				
-		if(m_boundaries[i].isInnerPoint(x, y) && m_boundaries[i].isValid()){
-			return i;
+		if(m_handlers[i].isInnerPoint(x, y)){
+			clicked(i);
 		}
 	}
 
-	return -1;
+	return clicked;
 }
 
 //----------------------------------------------------------------------
@@ -215,23 +222,53 @@ void GroupReactiveButtons<ButtonSides, TotalButtons>::eventHandler(const sf::Eve
 		return;
 	}
 
-	static int boundaryIdx;
-	static sf::Vector2i enterPoint;
+	static EE boundaryIdx;
+	static sf::Vector2i startPoint;
 	if(event.type==sf::Event::MouseButtonPressed &&
 		sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 	{
-		enterPoint=Normalization::positionOnView();
-		boundaryIdx=clickedModule(enterPoint.x, enterPoint.y);
+		startPoint=Normalization::positionOnView();
+		boundaryIdx=clickedButtons(startPoint.x, startPoint.y);
 	}
 	else if(event.type==sf::Event::MouseButtonReleased){
-		sf::Vector2i mousePosition=Normalization::positionOnView();
-		int t=clickedModule(mousePosition.x, mousePosition.y);
-		if(boundaryIdx==clickedModule(mousePosition.x, mousePosition.y)){
-			Command2 cmd;
-			cmd.m_action=derivedAction(PuzzleMove(resolveInput(boundaryIdx, enterPoint, mousePosition)));
-			m_commandQueue.push(cmd);
+		sf::Vector2i endPoint=Normalization::positionOnView();
+
+		if(endPoint!=startPoint){
+			boundaryIdx=boundaryIdx & clickedButtons(endPoint.x, endPoint.y);
+
+			if(boundaryIdx.isValid()){
+				int idx=getButton(boundaryIdx);
+				if(idx!=-1){
+					Command2 cmd;
+					cmd.m_action=derivedAction(PuzzleMove(resolveInput(idx, startPoint, endPoint)));
+					m_commandQueue.push(cmd);
+				}
+			}
 		}
 	}
+}
+
+//----------------------------------------------------------------------
+
+template<int ButtonSides, int TotalButtons>
+int GroupReactiveButtons<ButtonSides, TotalButtons>::getButton(const EE& idxs)
+{
+	int min=-1;
+	for(int i=0; i<TotalButtons; i++){
+		EE e;
+		e(i);
+		if((e & idxs).isValid()){
+			if(min==-1){
+				min=i;
+				continue;
+			}
+			if(m_boundaryDistances[i]<m_boundaryDistances[min]){
+				min=i;
+			}
+		}
+	}
+
+	return min;
 }
 
 //----------------------------------------------------------------------
@@ -240,46 +277,21 @@ template<int ButtonSides, int TotalButtons>
 void GroupReactiveButtons<ButtonSides, TotalButtons>::updateView()
 {
 	for(int i=0; i<TotalButtons; i++){
-		m_boundaries[i].update(m_corners);
-		m_boundaryDistances[i]=m_boundaries[i].weight(m_corners);
-		m_boundaries[i].isValid(false);
-		m_visibleBoundaries[i]=i;
-	}
-
-	sort(m_visibleBoundaries.begin(), m_visibleBoundaries.end(), [this](int i, int j){
-		return m_boundaryDistances[i]>m_boundaryDistances[j];
-	});
-	
-	bool a=false;
-	int j=0;
-	int r;
-	int q=0;
-	for(int i=0; i<TotalButtons; i++){
-		a=false;
-		j=m_visibleBoundaries[i];
-		const Vect<2>& W=m_boundaries[j].getCentroid();
-		for(int k=i+1; k<TotalButtons; k++){
-			r=m_visibleBoundaries[k];
-			if(m_boundaries[r].isInnerPoint(W[0], W[1])){
-				a=true;
-				break;
-			}
-		}
-
-		if(a==false){
-			m_boundaries[j].isValid(true);
-		}
+		m_handlers[i].update(m_corners);
+		m_boundaryDistances[i]=m_handlers[i].weight(m_corners);
 	}
 }
+
 
 //----------------------------------------------------------------------
 
 template<int ButtonSides, int TotalButtons>
 Instruction GroupReactiveButtons<ButtonSides, TotalButtons>::resolveInput(int boundaryIdx, const sf::Vector2i& V, const sf::Vector2i& W)
 {
-	return m_boundaries[boundaryIdx].getModuleDirection(V, W);
+	return m_handlers[boundaryIdx].getInstruction(V, W);
 }
 
 //----------------------------------------------------------------------
+
 
 #endif

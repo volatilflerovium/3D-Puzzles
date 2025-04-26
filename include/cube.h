@@ -2,12 +2,11 @@
 * Cube class                                 								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef CUBE_H
 #define CUBE_H
-
 #include "cell.h"
 
 struct CubeSettings : public CellSettings
@@ -25,8 +24,7 @@ class Cube : public LogicCell<CubeSettings>
 {
 	public:
 		Cube(std::shared_ptr<RSpace<3>> _RS, const Vect<3>& position, int id);
-		virtual ~Cube()
-		{}
+		virtual ~Cube()=default;
 
 		void updateEdges();
 		void setFace(int idx, int f0, int f1, int f2, int f3);

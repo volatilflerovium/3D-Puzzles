@@ -2,33 +2,35 @@
 * Camera class                               								*
 *         	                                                         *
 * Version: 1.7                                                       *
-* Date:    26-12-2022                                                *
+* Date:    26-12-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <SFML/Graphics.hpp>
-
-#include "constants.h"
-#include "base.h"
 #include "reference_frame.h"
-#include "vector.h"
 #include "rspace.h"
 #include "utilities.h"
 
-//----------------------------------------------------------------------
+enum class CAM
+{
+	A,
+	B,
+	TOTAL,
+};
+
+//--------------------------------------------------------------------
 
 class Camera : public ReferenceFrame
 {
 	public:
-		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double topCornerX, double topCornerY, double width, double height, double originX, double originY, double size=0.0);
-		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double topCornerX, double topCornerY, double width, double height, double size=0.0);
-		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double originX, double originY, double size=0.0);		
+		Camera()=delete;
+		Camera(const Camera&)=delete;
 
-		Camera& setApperture(double aperture);
-		Camera& setFocus(double focus);
-		~Camera();
+		virtual ~Camera()=default;
+
+		void setApperture(double aperture);
+		void setFocus(double focus);
 
 		sf::Vector2f VectSFVect(const Vect<3>& V) const; //Vect<3> to sf::Vertex
 
@@ -47,8 +49,6 @@ class Camera : public ReferenceFrame
 		void eventHandler(const sf::Event& event);
 		void updateView();
 	
-		static Camera* m_Cameras[2];
-
 	private:
 		std::shared_ptr<RSpace<3>> m_RS;
 		Rotation<3> m_yawRotation;
@@ -82,29 +82,186 @@ class Camera : public ReferenceFrame
 			};
 		};
 
+		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double topCornerX, double topCornerY, double width, double height, double originX, double originY, double size=0.0);
+		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double topCornerX, double topCornerY, double width, double height, double size=0.0);
+		Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double originX, double originY, double size=0.0);
+
 		double ppWx(double d) const;
 		double ppWy(double d) const;
 
-		double normalizeAngle(double angle);		
+		double normalizeAngle(double angle);
+
+	friend class CameraManager;
 };
 
-//----------------------------------------------------------------------
+//====================================================================
+//====================================================================
+
+class CameraManager
+{
+	public:
+		template<CAM C, typename... Args>
+		static void init(Args... args)
+		{
+			static bool initCams=false;
+			if(!initCams){
+				std::memset(m_CameraPtr, 0, sizeof(Camera*)*static_cast<int>(CAM::TOTAL));
+			}
+
+			static ABC<C> cam(args...);
+			m_CameraPtr[static_cast<int>(C)]=cam.m_cam;
+		}
+
+		static void setCamera(CAM C)
+		{
+			s_cam=C;
+		}
+
+		static bool isCameraAvailable(CAM C)
+		{
+			return nullptr!=m_CameraPtr[static_cast<int>(C)];
+		}
+
+		static void setApperture(double aperture)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->setApperture(aperture);
+		}
+
+		static void setFocus(double focus)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->setFocus(focus);
+		}
+
+		static sf::Vector2f VectSFVect(const Vect<3>& V)//Vect<3> to sf::Vertex
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->VectSFVect(V);
+		}
+
+		static void lRuD()
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->lRuD();
+		}
+
+		static void yawControl(int yawDirection)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->yawControl(yawDirection);
+		}
+
+		static void rollControl(int rollDirection)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->rollControl(rollDirection);
+		}
+
+		static void pitchControl(int pitchDirection)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->pitchControl(pitchDirection);
+		}
+
+		static bool inRangeView(const Vect<3>& V)
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->inRangeView(V);
+		}
+
+		static void updateVertex(sf::Vertex& V, const Vect<3>& W)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->updateVertex(V, W);
+		}
+
+		static void updateVertex(sf::Vector2f& V, const Vect<3>& W)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->updateVertex(V, W);
+		}
+
+		static double distanceToCamera(const Vect<3>& V)// V is in world coordinates
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->distanceToCamera(V);
+		}
+
+		static double quasiDistanceToCamera(const Vect<3>& V)// V is in world coordinates
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->quasiDistanceToCamera(V);
+		}
+
+		static void setWindow(sf::RenderWindow* window)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->setWindow(window);
+		}
+
+		static void eventHandler(const sf::Event& event)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->eventHandler(event);
+		}
+
+		static void updateView()
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->updateView();
+		}
+
+
+		/*static const double& rt()
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->rt();
+		}
+
+		static double trans_x(double x)
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->trans_x(x);
+		}
+		
+		static double trans_y(double y)
+		{
+			return m_CameraPtr[static_cast<int>(s_cam)]->trans_y(y);
+		}*/
+
+		static void draw(const sf::Drawable& drawable, const sf::RenderStates& states=sf::RenderStates::Default)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->draw(drawable, states);
+		}
+			
+		static void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states=sf::RenderStates::Default)
+		{
+			m_CameraPtr[static_cast<int>(s_cam)]->draw(vertices, vertexCount, type, states);
+		}
+
+
+	private:
+		static Camera* m_CameraPtr[static_cast<int>(CAM::TOTAL)];
+
+		static CAM s_cam;
+
+		template<CAM C>
+		struct ABC
+		{
+			template<typename... Args>
+			ABC(Args... args)
+			:m_cam(new Camera(args...))
+			{
+			}
+
+			~ABC()
+			{
+				delete m_cam;
+			}
+
+			Camera* m_cam;
+		};
+};
+
+//====================================================================
+//====================================================================
+
+//--------------------------------------------------------------------
 
 inline Camera::Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double topCornerX, double topCornerY, double width, double height, double size)
 :
 Camera(RS, fD, aperture, topCornerX, topCornerY, width, height, width*0.5, height*0.5, size)
 {}
 
-//----------------------------------------------------------------------
+//--------------------------------------------------------------------
 
 inline Camera::Camera(std::shared_ptr<RSpace<3>> RS, double fD, double aperture, double originX, double originY, double size)
 :
 Camera(RS, fD, aperture, 0.0, 0.0, D_WINDOW_WIDTH, D_WINDOW_HEIGHT, originX, originY, size)
-{}
-
-//----------------------------------------------------------------------
-
-inline Camera::~Camera()
 {}
 
 //----------------------------------------------------------------------
@@ -135,23 +292,21 @@ inline void Camera::updateVertex(sf::Vector2f& V, const Vect<3>& W) const
 
 //----------------------------------------------------------------------
 
-inline Camera& Camera::setApperture(double aperture)
+inline void Camera::setApperture(double aperture)
 {
 	m_app=(1.0/(2.0*aperture));
 	m_threshold=m_fD/sqrt(m_fD*m_fD+aperture*aperture);
 	m_proportion=m_app*(0.5*(c_width+c_height));
-	return *this;
 }
 
 //----------------------------------------------------------------------
 
-inline Camera& Camera::setFocus(double focus)
+inline void Camera::setFocus(double focus)
 {
 	m_fD=focus;
 	double aperture=1.0/(2.0*m_app);	
 	m_threshold=m_fD/sqrt(m_fD*m_fD+aperture*aperture);
 	m_proportion=m_app*(0.5*(c_width+c_height));
-	return *this;
 }
 
 //----------------------------------------------------------------------
@@ -210,16 +365,6 @@ inline double Camera::normalizeAngle(double angle)
 	}
 
 	return angle;
-}
-
-
-//----------------------------------------------------------------------
-
-inline void Camera::updateView()
-{
-	if(m_ready){
-		lRuD();
-	}
 }
 
 //----------------------------------------------------------------------

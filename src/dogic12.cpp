@@ -1,12 +1,12 @@
-#include "../include/dogic12.h"
-#include "../include/tetra.h"
+#include "dogic12.h"
+#include "tetra.h"
 
 //----------------------------------------------------------------------
 
-Dogic12::Dogic12(std::shared_ptr<RSpace<3>> RS, Vect<3>* vertices)
-:Puzzle(RS, 72.0),
-m_cellIndex(0),
-m_partIndex(0)
+Dogic12::Dogic12(std::shared_ptr<RSpace<3>> RS, const Vect<3>* vertices)
+:Puzzle(RS, 72.0)
+, m_cellIndex(0)
+, m_partIndex(0)
 {
 	m_modules[0]=new ModuloT12(vertices[1], DELTA_ROTATION);
 	m_modules[1]=new ModuloT12(vertices[0], DELTA_ROTATION);
@@ -45,18 +45,20 @@ m_partIndex(0)
 	mkFace(vertices[6], vertices[10], vertices[2]);//18
 	mkFace(vertices[11], vertices[10], vertices[6]);//19
 
-	sf::Color colours[]={sf::Color(179, 247, 19),
-	sf::Color(214, 38, 76),
-	sf::Color(1, 193, 117),
-	sf::Color(32, 2, 140),
-	sf::Color(17, 170, 45),
-	sf::Color(39, 65, 142),
-	sf::Color(132, 17, 76),
-	sf::Color::Blue,
-	sf::Color(249, 234, 182),
-	sf::Color(215, 104, 232),
-	sf::Color::Magenta,
-	sf::Color::Red};
+	sf::Color colours[]={
+		sf::Color(179, 247, 19),
+		sf::Color(214, 38, 76),
+		sf::Color(1, 193, 117),
+		sf::Color(32, 2, 140),
+		sf::Color(17, 170, 45),
+		sf::Color(39, 65, 142),
+		sf::Color(132, 17, 76),
+		sf::Color::Blue,
+		sf::Color(249, 234, 182),//)(132, 17, 76),
+		sf::Color(215, 104, 232),
+		sf::Color::Magenta,
+		sf::Color::Red
+	};
 
 	looping(vertices, [&, this](std::vector<int> idxs, int i){
 		for(int k=0; k<5; k++){
@@ -95,7 +97,7 @@ m_partIndex(0)
 		}
 	});
 
-	for(int i=0; i<Dogic12Settings::TOTAL_MODULOS; i++){
+	for(uint i=0; i<Dogic12Settings::TOTAL_MODULOS; i++){
 		if(m_modules[i]){
 			m_modules[i]->setID(i);
 		}
@@ -110,6 +112,15 @@ void Dogic12::mkFace(const Vect<3>& V1, const Vect<3>& V2, const Vect<3>& V3)
 	Vect<3> W2=mk1(V2, V3);
 	Vect<3> W3=mk1(V1, V3);
 
+	/*
+	v1 w1 v2 w2 v3 w3
+
+	v1 w1 w3
+	w1 w2 w3
+	w1 v2 w2
+	w2 v3 w3
+	//*/
+	
 	double y=350.0;
 	
 	Parts part;	

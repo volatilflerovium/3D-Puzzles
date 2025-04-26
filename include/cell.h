@@ -3,18 +3,13 @@
 * LogicCell class                              								*
 *         	                                                         *
 * Version: 1.0                                                       *
-* Date:    26-09-2022                                                *
+* Date:    26-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
 #ifndef CELL_H
 #define CELL_H
-
-#include <SFML/Graphics.hpp>
-
-#include "camera.h"
-#include "vector.h"
-#include "shape.h"
 #include "modulo.h"
+#include "shape.h"
 #include "utilities.h"
 
 //----------------------------------------------------------------------
@@ -26,23 +21,23 @@ class Cell : public Shape
 		:Shape(_RS)
 		{}
 
-		virtual ~Cell(){};
+		virtual ~Cell()=default;
 
 		virtual void setPin(ModuloI* pin)=0;
 		virtual void isolate(const ModuloI* module)=0;	
 		virtual void executeAction(Action* action, int direction)=0;		
 		virtual void paintFace(int faceID, const sf::Color& colour)=0;
-		virtual void paintFace(const Vect<3>& V, const sf::Color& colour)
-		{}
-		virtual void print()const=0;
+		virtual void paintFace(const Vect<3>& V, const sf::Color& colour){}
+
 		virtual double quasiDistanceToCamera()=0;
 		virtual void setMetadata(const ModuloI* module, int val)=0;
 		virtual int getMetadata(const ModuloI* module)=0;
+
+		virtual void debug()const=0;
 };
 
-//======================================================================
-//######################################################################
-//======================================================================
+//====================================================================
+//====================================================================
 
 struct CellSettings
 {
@@ -77,7 +72,6 @@ class LogicCell<Data, true> : public Cell
 		virtual void paintFace(int faceID, const sf::Color& colour);
 
 		virtual void draw();
-		virtual void updateEdges();
 		virtual void rotate(const Rotation<3>& Rt);
 		virtual void revRotate(const Rotation<3>& Rt);
 		virtual void setLocalPosition(const Vect<3>& V);
@@ -87,8 +81,13 @@ class LogicCell<Data, true> : public Cell
 		virtual void setMetadata(const ModuloI* module, int val);
 		virtual int getMetadata(const ModuloI* module);
 
-		void print()const{
+		virtual void debug()const override
+		{
 			std::cout<<m_id<<"\n";
+			for(int i=0; i<Data::VERTEX_NUM; i++){
+				std::cout<<m_Vertex[i]<<" : ";
+			}
+			std::cout<<"\n";
 		}
 
 	protected:
@@ -167,9 +166,9 @@ class LogicCell<Data, true> : public Cell
 
 template<typename Data>
 LogicCell<Data, true>::LogicCell(std::shared_ptr<RSpace<3>> _RS, int id)
-:Cell(_RS),
-m_id(id),
-m_numEdges(Data::NUM_EDGES)
+:Cell(_RS)
+, m_numEdges(Data::NUM_EDGES)
+, m_id(id)
 {
 	m_Vertex=new Vect<3>[Data::VERTEX_NUM];
 	m_Edges=new sf::Vertex*[Data::NUM_EDGES];
@@ -250,14 +249,6 @@ void LogicCell<Data, true>::isolate(const ModuloI* module)
 //----------------------------------------------------------------------
 
 template<typename Data>
-void LogicCell<Data, true>::updateEdges()
-{
-	std::cout<<"overide!\n";
-}
-
-//----------------------------------------------------------------------
-
-template<typename Data>
 void LogicCell<Data, true>::rotate(const Rotation<3>& Rt)
 {
 	Rt.rotate(m_centroid);
@@ -315,21 +306,24 @@ void LogicCell<Data, true>::draw()
 
 	updateEdges();
 
-	for(int i=0; i<Data::FACE_NUM; i++){
-		m_paintOrder[i]=i;
-		m_distances[i]=m_Cm->quasiDistanceToCamera(getFaceCentroid(i));
-	}
+	//if(m_hasChanged || true)
+	{
+		for(int i=0; i<Data::FACE_NUM; i++){
+			m_paintOrder[i]=i;
+			m_distances[i]=CameraManager::quasiDistanceToCamera(getFaceCentroid(i));
+		}
 
-	sort(m_paintOrder.begin(), m_paintOrder.end(), [this](int i, int j){
-		return m_distances[i]>m_distances[j];
-	});
+		sort(m_paintOrder.begin(), m_paintOrder.end(), [this](int i, int j){
+			return m_distances[i]>m_distances[j];
+		});
+	}
 	
 	for(int i=0; i<m_numEdges; i++){
-		m_Cm->draw(m_Edges[i], 2, sf::Lines);
+		CameraManager::draw(m_Edges[i], 2, sf::Lines);
 	}
 	
 	for(int i=0; i<Data::FACE_NUM; i++){
-		m_Cm->draw(m_faces[m_paintOrder[i]]);
+		CameraManager::draw(m_faces[m_paintOrder[i]]);
 	}
 }
 
@@ -352,7 +346,7 @@ Vect<3> LogicCell<Data, true>::getFaceCentroid(int faceID) const
 template<typename Data>
 inline void LogicCell<Data, true>::paintFace(int faceID, const sf::Color& colour)
 {
-	m_faces[faceID].setFillColor(colour);	
+	m_faces[faceID].setFillColor(colour);
 }
 
 //----------------------------------------------------------------------
@@ -360,7 +354,7 @@ inline void LogicCell<Data, true>::paintFace(int faceID, const sf::Color& colour
 template<typename Data>
 inline double LogicCell<Data, true>::quasiDistanceToCamera()
 {
-	return m_Cm->quasiDistanceToCamera(getCentroidW());
+	return CameraManager::quasiDistanceToCamera(getCentroidW());
 }
 
 //----------------------------------------------------------------------
@@ -403,5 +397,7 @@ inline int LogicCell<Data, true>::getMetadata(const ModuloI* module)
 }
 
 //----------------------------------------------------------------------
+
+
 
 #endif

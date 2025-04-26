@@ -1,0 +1,12 @@
+*~
+*_session.txt
+CMakeCache.txt
+CMakeFiles/*
+Makefile
+cmake_install.cmake
+build/*
+.dogic12_session
+.dogic_session
+.rubik_session
+3D-Puzzles-x86_64.AppImage
+deploy_app.sh

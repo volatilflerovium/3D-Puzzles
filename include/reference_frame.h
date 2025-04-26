@@ -8,15 +8,20 @@
 #ifndef REF_FRAME_H
 #define REF_FRAME_H
 
-#include <SFML/Graphics.hpp>
+#include "base.h"
 #include "constants.h"
 #include "vector.h"
-#include "base.h"
-
-class Camera;
 
 //----------------------------------------------------------------------
-
+/*
+ * The ReferenceFrame holds the 2D parameters of the window that the camera
+ * uses to project 3D shapes and drawn by the sf::RenderWindow. 
+ * It is incharge of normalising 2D coordinates and holds the center of 
+ * the window.
+ * 
+ * More general, it should define a rectangular region on the screen where
+ * 3D shapes are projected by the camera.
+ */
 class ReferenceFrame : public Base
 {
    public:
@@ -27,8 +32,6 @@ class ReferenceFrame : public Base
 		const double& rt() const;
 		double trans_x(double x) const;
 		double trans_y(double y) const;
-
-		//void eventHandler(const sf::Event& event);
 
 		void draw(const sf::Drawable& drawable, const sf::RenderStates& states=sf::RenderStates::Default);
 		void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states=sf::RenderStates::Default);
