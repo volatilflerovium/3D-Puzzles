@@ -4,9 +4,20 @@
 
 ![](https://i.postimg.cc/sg3gDswx/pzls.png)
 
-# How to install it
+## How to install it
 
-Download the AppImage [3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/raw/main/3D-Puzzles-x86_64.AppImage) for Linux
+[3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/releases)
+is available as an AppImage which means "one app = one file", which you can download and run on your
+Linux system while you don't need a package manager and nothing gets changed
+in your system.
+
+AppImages are single-file applications that run on most Linux distributions.
+Download it, make it executable, and run! No need to install.
+No system libraries or system preferences are altered.
+Most AppImages run on recent versions of Arch Linux, CentOS, Debian, Fedora,
+openSUSE, Red Hat, Ubuntu, and other common desktop distributions.
+
+Download the AppImage [3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/releases)
 and make it executable. You can do this using the graphical user interface, or the terminal emulator. 
 Via a terminal run:
 ```
@@ -15,7 +26,7 @@ chmod ugo x ~/path/to/3D-Puzzles-x86_64.AppImage
 Using the graphical interface: right-clicking on it, select Properties, 
 and then on the Permissions tab, check the box next to Allow executing file as program.
 
-# Instructions
+## Instructions
 
 * Select the puzzle, select new game or load the previous session. If new game
   is selected, the previous session will be lost... forever! :-) and the
@@ -28,11 +39,11 @@ and then on the Permissions tab, check the box next to Allow executing file as p
 
 * If there is not a previous session, then the puzzle is scramble.
 
-# Disclaimer
+## Disclaimer
 
 There was NOT intention at all of producing killer graphics, after all 
 [SFML does not support 3D](https://www.sfml-dev.org/faq.php#grl-3d)
 
-# License
+## License
 
 GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
