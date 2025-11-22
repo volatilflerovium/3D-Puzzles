@@ -6,19 +6,12 @@
 
 ## How to install it
 
-[3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/releases)
-is available as an AppImage which means "one app = one file", which you can download and run on your
-Linux system while you don't need a package manager and nothing gets changed
-in your system.
+Download the [installation pack](https://github.com/volatilflerovium/3D-Puzzles/releases/download/v1.1.0/3D_Puzzles_pack.zip).
+Unzip it and run the shell script .install.sh. The script will create
+a new desktop entry for 3D_Puzzles under Games. Done!
 
-AppImages are single-file applications that run on most Linux distributions.
-Download it, make it executable, and run! No need to install.
-No system libraries or system preferences are altered.
-Most AppImages run on recent versions of Arch Linux, CentOS, Debian, Fedora,
-openSUSE, Red Hat, Ubuntu, and other common desktop distributions.
-
-Download the AppImage [3D-Puzzles-x86_64.AppImage](https://github.com/volatilflerovium/3D-Puzzles/releases)
-and make it executable. You can do this using the graphical user interface, or the terminal emulator. 
+If you do not want to install it, alternatively, move the extract the executable 3D-Puzzles-x86_64.AppImage from
+the installation pack and make it executable. You can do this using the graphical user interface, or the terminal emulator. 
 Via a terminal run:
 ```
 chmod ugo x ~/path/to/3D-Puzzles-x86_64.AppImage
