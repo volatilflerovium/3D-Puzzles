@@ -10,3 +10,6 @@ build/*
 .rubik_session
 3D-Puzzles-x86_64.AppImage
 deploy_app.sh
+3D_Puzzles_pack.zip
+bin/
+install.sh

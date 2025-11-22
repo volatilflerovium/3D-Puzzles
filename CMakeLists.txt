@@ -31,23 +31,19 @@ add_compile_options("-O3")
 
 ##--------------------------------------------------------------------
 
-find_package(Threads REQUIRED)
-
-##--------------------------------------------------------------------
-
 find_package(SFML 2.5.1 COMPONENTS system window graphics REQUIRED)
 
-# Show a message with the opencv version detected 
 message("SFML version : ${SFML_VERSION}") 
+
+##--------------------------------------------------------------------
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-#add_compile_options(-Wall -Wextra -pedantic -Werror)
+set(puzzle-app "3D_puzzles")
 
-add_executable(puzzle-app
+add_executable("${puzzle-app}"
 	src/animation.cpp
-	src/base.cpp
 	src/camera.cpp
 	src/cube.cpp
 	src/tetra.cpp
@@ -63,12 +59,18 @@ add_executable(puzzle-app
 )
 
 target_include_directories(
-	puzzle-app
+	"${puzzle-app}"
 	PRIVATE
 	"include"
 )
 
-target_link_libraries(puzzle-app sfml-system sfml-window sfml-graphics )
+target_link_libraries(
+	"${puzzle-app}"
+	PRIVATE
+	sfml-system
+	sfml-window
+	sfml-graphics
+)
 
 # install resources
 add_subdirectory(resources)

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=3D Puzzles
+Comment=3D puzzle games: Rubik cube, Dogic and Dogic12 
+Terminal=false
+Type=Application
+Exec=3D_puzzles
+Icon=3D_Puzzles_icon
+Categories=Game;ArcadeGame;

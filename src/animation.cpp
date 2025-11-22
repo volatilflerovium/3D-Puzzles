@@ -8,7 +8,6 @@
 #include "state_machine.h"
 #include "reference_frame.h"
 
-#include <iostream>
 #include <ctime>
 
 //######################################################################
@@ -24,6 +23,12 @@ int main()
 	window.setFramerateLimit(48);
 
 	Base::setWindow(&window);
+
+	auto image = sf::Image{};
+	if(image.loadFromFile("../resources/puzzle_icon.png"))
+	{
+		window.setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
+	}
 
 	GameStateMachine::loadState(States::Initial);
 

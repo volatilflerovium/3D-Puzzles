@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "modulo.h"
 #include "cell.h"
 #include "utilities.h"

@@ -1,14 +1,9 @@
 install(
-    FILES puzzle.desktop
+    FILES 3D_Puzzles.desktop
     DESTINATION share/applications/
 )
 
 install(
-    FILES puzzle.png
-    DESTINATION share/icons/hicolor/230x230/apps
-)
-
-install(
-    FILES puzzleCover.png
-    DESTINATION share/icons/hicolor/843x938/apps
+    FILES 3D_Puzzles_icon.png
+    DESTINATION share/icons/hicolor/256x256/apps
 )

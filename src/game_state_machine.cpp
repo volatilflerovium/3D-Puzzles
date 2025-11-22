@@ -19,6 +19,7 @@ GameStateMachine::GameStateMachine()
 previous_state(nullptr)
 {
 	CameraManager::init<CAM::A>(GameStateMachine::Global->spawn({5700, 0, 0}, {0, 0, 0.0}), 1.0, 0.3, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
+	//CameraManager::init<CAM::A>(GameStateMachine::Global->spawn({4700, 730, 0}, {0, 0, 0.0}), 1.0, 0.3, D_WINDOW_WIDTH/2.0, D_WINDOW_HEIGHT/2.0);
 
 	Initial* initial=new Initial;
 

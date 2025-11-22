@@ -26,6 +26,8 @@ class Base
 		static sf::RenderWindow* m_window;
 };
 
+inline sf::RenderWindow* Base::m_window=nullptr;
+
 //====================================================================
 
 class Normalization

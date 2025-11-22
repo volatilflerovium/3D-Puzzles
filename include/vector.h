@@ -6,7 +6,6 @@
 * Date:    20-09-2022  (Reviewed 04/2025)                            *
 * Author:  Dan Machado                                               *                                         *
 **********************************************************************/
-
 #ifndef VECTOR_CLASS_H
 #define VECTOR_CLASS_H
 
